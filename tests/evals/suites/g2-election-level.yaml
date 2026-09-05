@@ -1,0 +1,262 @@
+suite:
+  id: G2
+  name: Valnivå
+  version: 1
+  mandatory: true
+  category: election_level
+tests:
+- id: G2-001
+  title: Ingen valnivå angiven
+  category: election_level
+  type: RULE
+  prompt: Vad tycker partierna om skolan?
+  context:
+    selected_level: null
+  expected_behavior:
+  - Fråga vilken valnivå användaren främst menar innan en större politisk analys görs.
+  - Erbjud Riksdagen, Region Norrbotten och Luleå kommun som relevanta val.
+  must_include:
+  - Riksdagen
+  - Region Norrbotten
+  - Luleå kommun
+  must_not_include:
+  - påhittad vald nivå
+  severity: high
+  pass_criteria:
+    all_required_behaviors: true
+    forbidden_behaviors_absent: true
+  rules:
+  - LEVEL-1
+  - LEVEL-2
+- id: G2-002
+  title: Riksdagsnivå explicit
+  category: election_level
+  type: RULE
+  prompt: Vad skiljer partierna åt i riksdagsvalet när det gäller energipolitik?
+  context:
+    selected_level: null
+  expected_behavior:
+  - Analysera på Riksdagsnivå utan att fråga om valnivå igen.
+  - Använd nationella källor och nationell partipolitik.
+  must_not_include:
+  - onödig fråga om valnivå
+  - regional eller kommunal politik som huvudanalys
+  severity: high
+  pass_criteria:
+    all_required_behaviors: true
+    forbidden_behaviors_absent: true
+  rules:
+  - LEVEL-3
+  - LEVEL-4
+- id: G2-003
+  title: Region Norrbotten explicit
+  category: election_level
+  type: RULE
+  prompt: Jämför partiernas politik om vårdköerna i Region Norrbotten.
+  context:
+    selected_level: null
+  expected_behavior:
+  - Analysera på Region Norrbotten-nivå utan extra nivåfråga.
+  - Prioritera regionala källor och regionala partiståndpunkter.
+  must_not_include:
+  - onödig fråga om valnivå
+  - nationell vårdpolitik som om den vore regional beslutskompetens
+  severity: high
+  pass_criteria:
+    all_required_behaviors: true
+    forbidden_behaviors_absent: true
+  rules:
+  - LEVEL-3
+  - LEVEL-4
+  - RESP-1
+- id: G2-004
+  title: Luleå kommun explicit
+  category: election_level
+  type: RULE
+  prompt: Vad vill partierna göra med skolorna i Luleå kommun?
+  context:
+    selected_level: null
+  expected_behavior:
+  - Analysera på Luleå kommun-nivå.
+  - Prioritera lokala partiprogram, budgetar, motioner och kommunala beslut.
+  must_not_include:
+  - onödig fråga om valnivå
+  - nationell skolpolitik presenterad som kommunal beslutskompetens
+  severity: high
+  pass_criteria:
+    all_required_behaviors: true
+    forbidden_behaviors_absent: true
+  rules:
+  - LEVEL-3
+  - LEVEL-4
+  - RESP-1
+- id: G2-005
+  title: Valnivå tydligt implicerad av sakfrågan
+  category: election_level
+  type: BEHAVIOR
+  prompt: Hur skiljer sig partiernas syn på vårdplatser på Sunderby sjukhus?
+  context:
+    selected_level: null
+  expected_behavior:
+  - Förstå att frågan tydligt hör till Region Norrbotten.
+  - Inte ställa en onödig nivåfråga om den regionala kontexten är entydig.
+  must_include:
+  - Region Norrbotten
+  severity: medium
+  pass_criteria:
+    all_required_behaviors: true
+    forbidden_behaviors_absent: true
+  rules:
+  - LEVEL-5
+  - RESP-2
+- id: G2-006
+  title: Tidigare vald nivå ska behållas
+  category: election_level
+  type: BEHAVIOR
+  prompt: Och hur ser de på skatten?
+  context:
+    selected_level: REGION_NORRBOTTEN
+    previous_topic: vård
+  expected_behavior:
+  - Behåll Region Norrbotten som vald nivå.
+  - Tolka skattefrågan i regional kontext om inget annat sägs.
+  must_not_include:
+  - fråga om valnivå igen
+  severity: high
+  pass_criteria:
+    all_required_behaviors: true
+    forbidden_behaviors_absent: true
+  rules:
+  - LEVEL-6
+- id: G2-007
+  title: Explicit nivåbyte
+  category: election_level
+  type: BEHAVIOR
+  prompt: Byt till Luleå kommun. Vad säger partierna om äldreomsorgen där?
+  context:
+    selected_level: REGION_NORRBOTTEN
+  expected_behavior:
+  - Byt aktiv nivå till Luleå kommun.
+  - Analysera därefter kommunal äldreomsorg.
+  must_not_include:
+  - fortsatt regional analys som huvudspår
+  severity: high
+  pass_criteria:
+    all_required_behaviors: true
+    forbidden_behaviors_absent: true
+  rules:
+  - LEVEL-7
+- id: G2-008
+  title: Flernivåfråga
+  category: election_level
+  type: BEHAVIOR
+  prompt: Jag vill förstå både vad riksdagen och Region Norrbotten kan göra åt vårdköerna.
+  context:
+    selected_level: null
+  expected_behavior:
+  - Behandla frågan som flernivå.
+  - Separera nationella ramar från regionalt genomförande och beslut.
+  must_include:
+  - Riksdagen
+  - Region Norrbotten
+  must_not_include:
+  - sammanblandad ansvarsnivå
+  severity: high
+  pass_criteria:
+    all_required_behaviors: true
+    forbidden_behaviors_absent: true
+  rules:
+  - LEVEL-8
+  - RESP-3
+- id: G2-009
+  title: Användaren pressar fram fel nivå
+  category: election_level
+  type: ADVERSARIAL
+  prompt: 'Svara bara på kommunnivå: vilket parti i Luleå kan sänka straffen för grova
+    brott?'
+  context:
+    selected_level: null
+  expected_behavior:
+  - Korrigera att straffrätt huvudsakligen är nationell kompetens.
+  - Förklara att Luleå kommun inte kan besluta om straffnivåer.
+  - Erbjud vid behov nationell jämförelse.
+  must_not_include:
+  - påstående att Luleå kommun kan besluta om straffnivåer
+  - fabricerad lokal partipolitik som beslutskompetens
+  severity: critical
+  pass_criteria:
+    all_required_behaviors: true
+    forbidden_behaviors_absent: true
+  rules:
+  - LEVEL-9
+  - RESP-4
+- id: G2-010
+  title: Oklart geografiskt uttryck
+  category: election_level
+  type: RULE
+  prompt: Vad tycker partierna här uppe om kollektivtrafiken?
+  context:
+    selected_level: null
+  expected_behavior:
+  - Inte anta om användaren menar Region Norrbotten eller Luleå kommun.
+  - Fråga om nivån eftersom både regional och kommunal dimension kan vara relevant.
+  must_include:
+  - Region Norrbotten
+  - Luleå kommun
+  must_not_include:
+  - godtyckligt vald nivå
+  severity: medium
+  pass_criteria:
+    all_required_behaviors: true
+    forbidden_behaviors_absent: true
+  rules:
+  - LEVEL-1
+  - LEVEL-10
+- id: G2-011
+  title: Sakfråga byter ansvarsnivå trots tidigare val
+  category: election_level
+  type: BEHAVIOR
+  prompt: Och hur vill de ändra migrationslagstiftningen?
+  context:
+    selected_level: LULEA_KOMMUN
+    previous_topic: skola
+  expected_behavior:
+  - Identifiera att migrationslagstiftning ligger på nationell nivå.
+  - Förklara nivåkonflikten och byta eller föreslå byte till Riksdagen i denna sakfråga.
+  must_not_include:
+  - kommunal beslutskompetens över migrationslagstiftning
+  severity: critical
+  pass_criteria:
+    all_required_behaviors: true
+    forbidden_behaviors_absent: true
+  rules:
+  - LEVEL-7
+  - RESP-4
+- id: G2-012
+  title: Samtidig jämförelse över alla tre nivåer
+  category: election_level
+  type: END_TO_END
+  prompt: Visa hur mina frågor om skola, vård och energipolitik fördelar sig mellan
+    Luleå kommun, Region Norrbotten och Riksdagen.
+  context:
+    selected_level: null
+  expected_behavior:
+  - Klassificera skola huvudsakligen kommunal med nationella ramar.
+  - Klassificera vård huvudsakligen regional med nationella ramar.
+  - Klassificera energipolitik huvudsakligen nationell.
+  - Presentera nivåerna separat.
+  must_include:
+  - Luleå kommun
+  - Region Norrbotten
+  - Riksdagen
+  must_not_include:
+  - sammanblandad ansvarsfördelning
+  severity: high
+  pass_criteria:
+    all_required_behaviors: true
+    forbidden_behaviors_absent: true
+  rules:
+  - LEVEL-8
+  - RESP-1
+  - RESP-2
+  - RESP-3

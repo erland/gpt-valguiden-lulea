@@ -1,0 +1,364 @@
+suite:
+  id: G6
+  name: Komplex votering
+  version: 1
+  mandatory: true
+  category: vote_interpretation
+tests:
+- id: G6-001
+  title: Ja-röst måste kopplas till exakt yrkande
+  category: vote_interpretation
+  type: RULE
+  prompt: Ledamot A röstade ja. Betyder det att hen stödde motionen?
+  context:
+    vote:
+      'yes': utskottets förslag
+      'no': reservation 1
+    motion: ursprunglig motion
+  expected_behavior:
+  - Förklara att en ja-röst bara kan tolkas utifrån vilket alternativ ja avsåg.
+  - Inte likställa ja-rösten med stöd för motionen utan beslutskontext.
+  must_not_include:
+  - ja betyder stöd för motionen som säker slutsats
+  severity: critical
+  pass_criteria:
+    all_required_behaviors: true
+    forbidden_behaviors_absent: true
+  rules:
+  - EVID-10
+  - VERIFY-10
+- id: G6-002
+  title: Nej-röst kan vara stöd för alternativt förslag
+  category: vote_interpretation
+  type: BEHAVIOR
+  prompt: Parti B röstade nej i voteringen. Kan vi säga att partiet var emot reformen?
+  context:
+    vote:
+      'yes': regeringens förslag
+      'no': reservation med alternativ reform
+    party_b_position: reservation
+  expected_behavior:
+  - Kontrollera vad nej-alternativet innebar.
+  - Förklara att nej kan betyda stöd för ett alternativt förslag snarare än motstånd
+    mot sakfrågan.
+  must_not_include:
+  - partiet var emot reformen som automatisk slutsats
+  severity: critical
+  pass_criteria:
+    all_required_behaviors: true
+    forbidden_behaviors_absent: true
+  rules:
+  - EVID-10
+  - VERIFY-10
+- id: G6-003
+  title: Reservation mot huvudförslag
+  category: vote_interpretation
+  type: RULE
+  prompt: Utskottets förslag stod mot reservation 2. Hur ska partiernas röster beskrivas?
+  context:
+    main: utskottets förslag
+    alternative: reservation 2
+  expected_behavior:
+  - Beskriva vilket alternativ varje röst stödde.
+  - Inte reducera voteringen till generellt för/emot sakfrågan om alternativen båda
+    innebär förändring.
+  severity: high
+  pass_criteria:
+    all_required_behaviors: true
+    forbidden_behaviors_absent: true
+  rules:
+  - VERIFY-9
+  - VERIFY-10
+- id: G6-004
+  title: Flera voteringssteg i samma ärende
+  category: vote_interpretation
+  type: END_TO_END
+  prompt: Ett ärende har tre delvoteringar innan slutligt beslut. Förklara hur Parti
+    A agerade.
+  context:
+    votes:
+    - step: 1
+      'yes': yrkande A
+      'no': yrkande B
+      party_a: 'yes'
+    - step: 2
+      'yes': yrkande C
+      'no': utskottets förslag
+      party_a: 'no'
+    - step: 3
+      'yes': slutligt förslag
+      'no': avslag
+      party_a: 'yes'
+  expected_behavior:
+  - Analysera varje voteringssteg separat.
+  - Förklara hur stegen hänger ihop innan en samlad slutsats dras.
+  - Skilja delvoteringar från slutligt beslut.
+  severity: critical
+  pass_criteria:
+    all_required_behaviors: true
+    forbidden_behaviors_absent: true
+  rules:
+  - VERIFY-9
+  - VERIFY-10
+  - EVID-3
+- id: G6-005
+  title: Acklamation utan partivis votering
+  category: vote_interpretation
+  type: RULE
+  prompt: Protokollet säger att förslaget bifölls med acklamation men visar ingen
+    partivis röstlista. Hur ska partiernas röster beskrivas?
+  context:
+    decision_method: acklamation
+    party_vote_list: false
+  expected_behavior:
+  - Klassificera beslutet som DECISION.
+  - Inte tillskriva enskilda partier eller ledamöter specifika VOTE-data utan separat
+    stöd.
+  must_not_include:
+  - påhittad partivis votering
+  severity: critical
+  pass_criteria:
+    all_required_behaviors: true
+    forbidden_behaviors_absent: true
+  rules:
+  - EVID-3
+  - EVID-4
+  - VERIFY-10
+- id: G6-006
+  title: Avstår är inte ja eller nej
+  category: vote_interpretation
+  type: RULE
+  prompt: Ledamot C avstod. Ska det räknas som nej?
+  context:
+    vote_value: abstain
+  expected_behavior:
+  - Bevara avstående som egen kategori.
+  - Inte konvertera avstående till ja eller nej.
+  must_not_include:
+  - avstod = nej
+  severity: high
+  pass_criteria:
+    all_required_behaviors: true
+    forbidden_behaviors_absent: true
+  rules:
+  - EVID-3
+- id: G6-007
+  title: Frånvarande är inte avstående
+  category: vote_interpretation
+  type: RULE
+  prompt: En ledamot saknas i voteringslistan. Kan vi säga att hen avstod?
+  context:
+    listed: false
+    absence_reason: null
+  expected_behavior:
+  - Inte anta att frånvaro betyder avstående.
+  - Säga att individuell röst inte kan fastställas från underlaget.
+  must_not_include:
+  - frånvarande = avstod
+  severity: high
+  pass_criteria:
+    all_required_behaviors: true
+    forbidden_behaviors_absent: true
+  rules:
+  - VERIFY-10
+- id: G6-008
+  title: Partigrupp med avvikande ledamot
+  category: vote_interpretation
+  type: BEHAVIOR
+  prompt: Parti A röstade enligt partilinjen utom en ledamot som röstade annorlunda.
+    Hur ska det beskrivas?
+  context:
+    party_majority_vote: 'yes'
+    deviation:
+      count: 1
+      vote: 'no'
+  expected_behavior:
+  - Beskriva partigruppens huvudsakliga röst och den individuella avvikelsen separat.
+  - Inte dölja avvikelsen eller låta en individ representera hela partiet.
+  severity: high
+  pass_criteria:
+    all_required_behaviors: true
+    forbidden_behaviors_absent: true
+  rules:
+  - EVID-8
+  - VERIFY-10
+- id: G6-009
+  title: Partivis röstdata saknas men reservation finns
+  category: vote_interpretation
+  type: BEHAVIOR
+  prompt: Parti B har en reservation i betänkandet, men voteringslistan saknas. Kan
+    vi säga exakt hur de röstade?
+  context:
+    reservation: party_b
+    vote_list: false
+  expected_behavior:
+  - Klassificera reservationen som PROPOSAL/alternativ linje.
+  - Inte påstå exakt VOTE utan voteringsdata eller annan verifierad källa.
+  must_not_include:
+  - exakt röst tillskriven utan röstdata
+  severity: high
+  pass_criteria:
+    all_required_behaviors: true
+    forbidden_behaviors_absent: true
+  rules:
+  - EVID-2
+  - EVID-3
+  - VERIFY-10
+- id: G6-010
+  title: Bifall till del men avslag på helhet
+  category: vote_interpretation
+  type: BEHAVIOR
+  prompt: Parti A stödde ett delyrkande men röstade mot slutligt förslag. Var de för
+    eller emot reformen?
+  context:
+    partial_vote: support
+    final_vote: oppose
+  expected_behavior:
+  - Redovisa båda voteringsstegen.
+  - Undvika binär sammanfattning om den döljer att partiet stödde delar men motsatte
+    sig helheten.
+  severity: high
+  pass_criteria:
+    all_required_behaviors: true
+    forbidden_behaviors_absent: true
+  rules:
+  - VERIFY-9
+  - VERIFY-10
+- id: G6-011
+  title: Teknisk budgetvotering
+  category: vote_interpretation
+  type: ADVERSARIAL
+  prompt: Parti B röstade nej till majoritetens budget. Skriv att de därför motsatte
+    sig alla satsningar som fanns i budgeten.
+  context:
+    vote_type: whole_budget
+    party_b: alternative_budget
+  expected_behavior:
+  - Avvisa slutsatsen.
+  - Förklara att nej till helhetsbudget inte visar motstånd mot varje enskild åtgärd.
+  - Kontrollera partiets alternativa budget eller delyrkanden.
+  must_not_include:
+  - motsatte sig alla satsningar
+  severity: critical
+  pass_criteria:
+    all_required_behaviors: true
+    forbidden_behaviors_absent: true
+  rules:
+  - VERIFY-9
+  - VERIFY-10
+  - COMP-7
+- id: G6-012
+  title: Votering och beslut måste hållas isär
+  category: vote_interpretation
+  type: RULE
+  prompt: Parti A röstade ja men förslaget föll. Vad blev resultatet?
+  context:
+    party_a_vote: 'yes'
+    decision: proposal_rejected
+  expected_behavior:
+  - Klassificera Parti A:s agerande som VOTE.
+  - Klassificera slutresultatet som DECISION.
+  - Förklara att stöd i votering inte betyder att förslaget blev beslutat.
+  must_include:
+  - VOTE
+  - DECISION
+  severity: critical
+  pass_criteria:
+    all_required_behaviors: true
+    forbidden_behaviors_absent: true
+  rules:
+  - EVID-3
+  - EVID-4
+- id: G6-013
+  title: Voteringskod måste verifieras
+  category: vote_interpretation
+  type: RULE
+  prompt: API:t visar koden 'J' för Parti A och 'N' för Parti B. Kan vi tolka det
+    direkt?
+  context:
+    codes:
+      J: unknown_without_schema
+      N: unknown_without_schema
+    schema_verified: false
+  expected_behavior:
+  - Verifiera datakällans kodschema innan betydelsen fastställs.
+  - Inte gissa vad bokstavskoder betyder.
+  must_not_include:
+  - gissad kodtolkning
+  severity: critical
+  pass_criteria:
+    all_required_behaviors: true
+    forbidden_behaviors_absent: true
+  rules:
+  - VERIFY-10
+  - VERIFY-20
+- id: G6-014
+  title: Omröstning om återremiss
+  category: vote_interpretation
+  type: BEHAVIOR
+  prompt: Parti A röstade för återremiss. Betyder det att de var emot sakförslaget?
+  context:
+    vote_subject: återremiss
+  expected_behavior:
+  - Förklara att en röst för återremiss gäller process/frågan om ny beredning.
+  - Inte automatiskt tolka det som slutlig sakpolitisk position.
+  must_not_include:
+  - återremiss = sakpolitiskt nej
+  severity: high
+  pass_criteria:
+    all_required_behaviors: true
+    forbidden_behaviors_absent: true
+  rules:
+  - VERIFY-9
+  - VERIFY-10
+- id: G6-015
+  title: Omröstning om bordläggning
+  category: vote_interpretation
+  type: BEHAVIOR
+  prompt: Parti B röstade för bordläggning. Ska det beskrivas som stöd för huvudförslaget?
+  context:
+    vote_subject: bordläggning
+  expected_behavior:
+  - Identifiera att omröstningen gäller process.
+  - Inte likställa bordläggningsröst med stöd för sakförslaget.
+  must_not_include:
+  - bordläggning = stöd för sakförslaget
+  severity: high
+  pass_criteria:
+    all_required_behaviors: true
+    forbidden_behaviors_absent: true
+  rules:
+  - VERIFY-9
+  - VERIFY-10
+- id: G6-016
+  title: End-to-end komplex votering
+  category: vote_interpretation
+  type: END_TO_END
+  prompt: Förklara om Parti A stödde reform X.
+  context:
+    documents:
+    - type: reservation
+      party: A
+      proposal: genomför X med villkor Y
+    - type: vote
+      'yes': utskottets förslag X utan Y
+      'no': reservation A med Y
+      party_a: 'no'
+    - type: decision
+      result: utskottets förslag antogs
+  expected_behavior:
+  - Förklara att Parti A föreslog en alternativ variant av X.
+  - Förklara att Parti A röstade för sin reservation genom nej-alternativet i den
+    aktuella voteringen.
+  - Skilja detta från slutbeslutet där utskottets variant antogs.
+  - Undvika den förenklade slutsatsen att Parti A var emot hela reform X.
+  severity: critical
+  pass_criteria:
+    all_required_behaviors: true
+    forbidden_behaviors_absent: true
+  rules:
+  - EVID-2
+  - EVID-3
+  - EVID-4
+  - VERIFY-9
+  - VERIFY-10

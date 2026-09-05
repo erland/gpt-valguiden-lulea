@@ -1,0 +1,106 @@
+name: Release
+
+on:
+  release:
+    types:
+      - published
+
+permissions:
+  contents: write
+
+jobs:
+  build-release:
+    name: Build and publish distributions
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install pyyaml
+
+      - name: Resolve release version
+        id: version
+        shell: bash
+        run: |
+          TAG="${{ github.event.release.tag_name }}"
+          VERSION="${TAG#v}"
+          if [ -z "$VERSION" ]; then
+            echo "Could not derive version from release tag: $TAG" >&2
+            exit 1
+          fi
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Build and validate
+        run: python scripts/build_all.py
+
+      - name: Stamp release version into distribution metadata
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import yaml, os
+
+          root = Path(".")
+          version = "${{ steps.version.outputs.version }}"
+
+          targets = [
+              root / "dist/chat/chat-distribution.yaml",
+              root / "dist/custom-gpt/custom-gpt.yaml",
+          ]
+
+          for path in targets:
+              data = yaml.safe_load(path.read_text(encoding="utf-8"))
+              data["version"] = version
+              path.write_text(
+                  yaml.safe_dump(data, sort_keys=False, allow_unicode=True),
+                  encoding="utf-8"
+              )
+          PY
+
+      - name: Repackage versioned release assets
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import zipfile
+
+          root = Path(".")
+          version = "${{ steps.version.outputs.version }}"
+
+          artifacts = [
+              (root / "dist/chat", root / f"dist/valguiden-chat-{version}.zip", "valguiden-chat"),
+              (root / "dist/custom-gpt", root / f"dist/valguiden-custom-gpt-{version}.zip", "valguiden-custom-gpt"),
+          ]
+
+          for base, out, top in artifacts:
+              if out.exists():
+                  out.unlink()
+              with zipfile.ZipFile(out, "w", zipfile.ZIP_DEFLATED) as zf:
+                  for p in sorted(base.rglob("*")):
+                      if p.is_file():
+                          zf.write(p, Path(top) / p.relative_to(base))
+          PY
+
+      - name: Validate release assets
+        shell: bash
+        run: |
+          python scripts/validate.py
+          python scripts/validate_release.py             --tag "${{ steps.version.outputs.tag }}"             --dir dist
+
+      - name: Upload release assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          gh release upload "${{ steps.version.outputs.tag }}"             "dist/valguiden-chat-${{ steps.version.outputs.version }}.zip"             "dist/valguiden-custom-gpt-${{ steps.version.outputs.version }}.zip"             --clobber

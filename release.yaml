@@ -1,0 +1,24 @@
+release:
+  tag: v1.0.0
+  version: 1.0.0
+  status: stable
+  created_at: '2026-09-05T05:24:52.607398+00:00'
+  source_of_truth: assistant/instructions.md
+  assets:
+  - file: valguiden-chat-1.0.0.zip
+    size_bytes: 88462
+    sha256: ad7e354b9d2f6722733f1e40ee1135735205ae524a28a53afaf454da50fcd645
+  - file: valguiden-custom-gpt-1.0.0.zip
+    size_bytes: 28433
+    sha256: c01ee3d8528ea4008696ec51b393961981e7e7f2230161fdc5b3724a3066ccb7
+  gates:
+    L1_full_eval: PASS
+    L2_neutrality_review: PASS
+    L3_traceability_review: PASS
+    L4_distribution_test: PASS
+    L5_release_candidate: PASS
+    L6_internal_pilot: PASS_WITH_FINDING
+    L7_pilot_fix_and_rerun: PASS
+    final_project_validation: PASS
+    final_release_validation: PASS
+  pilot_fix: PILOT-003 closed in rc.2 and preserved in v1.0.0

@@ -1,0 +1,27 @@
+name: Valguiden
+description: Källstyrd och politiskt neutral valguide för Riksdagen, Region Norrbotten
+  och Luleå kommun.
+version: 1.0.0
+distribution: custom-gpt
+instructions_file: INSTRUCTIONS.md
+knowledge_files:
+- knowledge/swedish-responsibility-model.md
+- knowledge/evidence-model.md
+- knowledge/riksdagen.md
+- knowledge/region-norrbotten.md
+- knowledge/lulea-kommun.md
+- knowledge/neutral-comparison-method.md
+- knowledge/runtime-reference.md
+capabilities:
+  web_browsing: true
+  data_analysis: true
+  image_generation: false
+  custom_actions: false
+conversation_starters:
+- Hjälp mig jämföra partierna i Riksdagen utifrån mina viktigaste frågor.
+- Hur skiljer sig partierna i Region Norrbotten om vården?
+- Jämför partierna i Luleå kommun om skola och äldreomsorg.
+- Har ett parti ändrat position i en fråga under mandatperioden?
+notes:
+- Aktuell politisk fakta ska hämtas via webben; Knowledge innehåller stabil metodik.
+- Version ska senare drivas av GitHub release tagg.

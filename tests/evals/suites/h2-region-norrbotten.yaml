@@ -1,0 +1,368 @@
+suite:
+  id: H2
+  name: E2E – Region Norrbotten
+  version: 1
+  mandatory: true
+  category: end_to_end
+tests:
+- id: H2-001
+  title: Regional vårdfråga identifieras direkt
+  category: end_to_end
+  type: END_TO_END
+  prompt: Hur skiljer sig partierna i Region Norrbotten om vårdköerna?
+  context:
+    selected_level: null
+  expected_behavior:
+  - Identifiera Region Norrbotten utan att fråga om valnivå igen.
+  - Prioritera regionala källor och regional partipolitik.
+  - Hålla nationella vårdramar separata från regionalt genomförande.
+  must_include:
+  - Region Norrbotten
+  severity: high
+  pass_criteria:
+    all_required_behaviors: true
+    forbidden_behaviors_absent: true
+  rules:
+  - LEVEL-3
+  - RESP-1
+  - RESP-2
+- id: H2-002
+  title: Regional källkedja följs
+  category: end_to_end
+  type: END_TO_END
+  prompt: Visa vad Parti A sagt och gjort om vårdköerna.
+  context:
+    level: REGION_NORRBOTTEN
+    sources_available:
+    - regional_program
+    - budget
+    - motion
+    - protocol
+    - annual_report
+  expected_behavior:
+  - Börja med regional OFFICIAL_POLICY.
+  - Följ med relevanta PROPOSAL, VOTE/DECISION och OUTCOME där det går.
+  - Använd regionala originalkällor i första hand.
+  severity: critical
+  pass_criteria:
+    all_required_behaviors: true
+    forbidden_behaviors_absent: true
+  rules:
+  - C3-source-guide
+  - EVID-1
+  - EVID-2
+  - EVID-3
+  - EVID-4
+  - EVID-6
+- id: H2-003
+  title: Ciceron och protokoll prioriteras för beslut
+  category: end_to_end
+  type: END_TO_END
+  prompt: Ett 'Beslut i korthet' säger X men protokollet i Ciceron visar Y. Vad ska
+    gälla?
+  context:
+    level: REGION_NORRBOTTEN
+    summary: X
+    protocol: Y
+  expected_behavior:
+  - Använd sammanfattningen för discovery/översikt.
+  - Prioritera det fullständiga protokollet för exakt beslut.
+  - Redovisa konflikten om den är materiell.
+  severity: critical
+  pass_criteria:
+    all_required_behaviors: true
+    forbidden_behaviors_absent: true
+  rules:
+  - C3-source-guide
+  - VERIFY-8
+  - VERIFY-13
+- id: H2-004
+  title: Regional motion följs till beslut
+  category: end_to_end
+  type: END_TO_END
+  prompt: Vad hände med motionen om X i Region Norrbotten?
+  context:
+    chain:
+    - motion
+    - beredning
+    - fullmäktigeprotokoll
+    - decision
+  expected_behavior:
+  - Klassificera motionen som PROPOSAL.
+  - Följa ärendet till fullmäktiges beslut.
+  - Inte beskriva motionen som genomförd bara för att den lades.
+  must_include:
+  - PROPOSAL
+  - DECISION
+  severity: critical
+  pass_criteria:
+    all_required_behaviors: true
+    forbidden_behaviors_absent: true
+  rules:
+  - C3-source-guide
+  - EVID-2
+  - EVID-4
+  - EVID-11
+- id: H2-005
+  title: Interpellation är aktivitet och statement
+  category: end_to_end
+  type: END_TO_END
+  prompt: En regionpolitiker har ställt flera interpellationer om vården. Vad visar
+    det?
+  context:
+    level: REGION_NORRBOTTEN
+    document_type: interpellation
+  expected_behavior:
+  - Behandla interpellationerna som dokumenterad politisk aktivitet och STATEMENT/frågeställning.
+  - Inte likställa dem med beslut eller genomslag.
+  must_not_include:
+  - interpellation = beslut
+  - interpellation = genomslag
+  severity: high
+  pass_criteria:
+    all_required_behaviors: true
+    forbidden_behaviors_absent: true
+  rules:
+  - D4-region-knowledge
+  - F2-activity-metrics
+  - EVID-5
+- id: H2-006
+  title: Regional budgetjämförelse samma år
+  category: end_to_end
+  type: END_TO_END
+  prompt: Jämför partiernas regionala budgetar för vård.
+  context:
+    level: REGION_NORRBOTTEN
+    budget_year: '2026'
+  expected_behavior:
+  - Jämföra budgetar för samma år och samma budgetområden.
+  - Skilja mellan officiell linje, budgetförslag och faktiskt antagen budget.
+  - Inte jämföra nominella belopp utan relevant kontext när det blir missvisande.
+  severity: high
+  pass_criteria:
+    all_required_behaviors: true
+    forbidden_behaviors_absent: true
+  rules:
+  - E2-party-comparison
+  - C3-source-guide
+- id: H2-007
+  title: Regional votering med reservation
+  category: end_to_end
+  type: END_TO_END
+  prompt: Parti B reserverade sig och röstade annorlunda i regionfullmäktige. Vad
+    betyder det?
+  context:
+    level: REGION_NORRBOTTEN
+    reservation: true
+    vote_context_available: true
+  expected_behavior:
+  - Klassificera reservationen som alternativt PROPOSAL.
+  - Analysera VOTE utifrån exakt voteringskontext.
+  - Skilja partiets alternativ från det slutliga DECISION.
+  severity: critical
+  pass_criteria:
+    all_required_behaviors: true
+    forbidden_behaviors_absent: true
+  rules:
+  - G6-complex-vote
+  - EVID-2
+  - EVID-3
+  - EVID-4
+- id: H2-008
+  title: Årsredovisning används för utfall
+  category: end_to_end
+  type: END_TO_END
+  prompt: Har regionens beslut om X faktiskt fått effekt?
+  context:
+    level: REGION_NORRBOTTEN
+    decision_found: true
+    annual_report_found: true
+  expected_behavior:
+  - Använd årsredovisning eller annan uppföljning som OUTCOME-evidens.
+  - Skilja genomförande/resultat från själva beslutet.
+  - Undvika ensam partipolitisk kausalitet utan stöd.
+  must_include:
+  - OUTCOME
+  severity: critical
+  pass_criteria:
+    all_required_behaviors: true
+    forbidden_behaviors_absent: true
+  rules:
+  - C3-source-guide
+  - EVID-6
+  - EVID-12
+- id: H2-009
+  title: Kollektivtrafik kan kräva delat ansvar
+  category: end_to_end
+  type: END_TO_END
+  prompt: Vad kan Region Norrbotten göra åt kollektivtrafiken och vad ligger utanför
+    regionens kontroll?
+  context:
+    level: REGION_NORRBOTTEN
+  expected_behavior:
+  - Beskriva regionalt ansvar och regional påverkan.
+  - Skilja detta från nationella infrastrukturramar och kommunala delar när relevant.
+  - Inte överdriva regionens beslutskompetens.
+  severity: high
+  pass_criteria:
+    all_required_behaviors: true
+    forbidden_behaviors_absent: true
+  rules:
+  - D1-responsibility-knowledge
+  - D4-region-knowledge
+  - RESP-3
+- id: H2-010
+  title: Regional vårdfråga med nationell reform
+  category: end_to_end
+  type: END_TO_END
+  prompt: Hur påverkar den nationella reformen X vad partierna i Region Norrbotten
+    faktiskt kan göra?
+  context:
+    level: REGION_NORRBOTTEN
+    national_framework_change: true
+  expected_behavior:
+  - Separera den nationella ramen från regionala handlingsalternativ.
+  - Analysera regionala partiers positioner inom det faktiska regionala handlingsutrymmet.
+  severity: high
+  pass_criteria:
+    all_required_behaviors: true
+    forbidden_behaviors_absent: true
+  rules:
+  - RESP-1
+  - RESP-3
+  - D4-region-knowledge
+- id: H2-011
+  title: Regionparti och nationellt parti skiljer sig
+  category: end_to_end
+  type: END_TO_END
+  prompt: Det nationella partiet säger X men partiet i Region Norrbotten säger Y.
+    Vilken linje gäller i regionvalet?
+  context:
+    level: REGION_NORRBOTTEN
+    national: X
+    regional: Y
+  expected_behavior:
+  - Prioritera den regionala officiella linjen för regionvalet.
+  - Redovisa nationell linje separat om den är relevant.
+  - Inte beskriva skillnaden som automatisk tidsmässig positionsförändring.
+  severity: critical
+  pass_criteria:
+    all_required_behaviors: true
+    forbidden_behaviors_absent: true
+  rules:
+  - NEUT-8
+  - VERIFY-4
+  - VERIFY-12
+  - E4-position-change
+- id: H2-012
+  title: Regional kandidatjämförelse
+  category: end_to_end
+  type: END_TO_END
+  prompt: Jämför två kandidater till Region Norrbotten utifrån vårdfrågor.
+  context:
+    level: REGION_NORRBOTTEN
+    candidates:
+    - A
+    - B
+    period: 2022-2026
+  expected_behavior:
+  - Verifiera kandidaternas identitet och regionala roll.
+  - Jämföra samma period och samma aktivitetstyper.
+  - Hålla aktivitet, formell roll och sakpolitisk matchning separata.
+  - Inte rangordna kompetens eller personlig lämplighet.
+  severity: critical
+  pass_criteria:
+    all_required_behaviors: true
+    forbidden_behaviors_absent: true
+  rules:
+  - F1-candidate-model
+  - F2-activity-metrics
+  - F3-candidate-comparison
+- id: H2-013
+  title: Regional prioriteringsmatchning
+  category: end_to_end
+  type: END_TO_END
+  prompt: Jag prioriterar vårdköer högst, sedan kollektivtrafik och därefter regionskatt.
+    Vilka partier ligger närmast?
+  context:
+    level: REGION_NORRBOTTEN
+  expected_behavior:
+  - Göra prioriteringarna explicita.
+  - Genomföra neutral faktajämförelse innan matchning.
+  - Redovisa matchning och evidenssäkerhet separat.
+  - Inte ge normativ röstningsuppmaning.
+  must_not_include:
+  - du borde rösta på
+  - du ska rösta på
+  severity: critical
+  pass_criteria:
+    all_required_behaviors: true
+    forbidden_behaviors_absent: true
+  rules:
+  - E5-user-priorities
+  - COMP-12
+  - NEUT-10
+- id: H2-014
+  title: Regionalt underlag saknas för ett parti
+  category: end_to_end
+  type: END_TO_END
+  prompt: Parti C har nästan inga regionala dokument om kollektivtrafik. Hur påverkar
+    det jämförelsen?
+  context:
+    level: REGION_NORRBOTTEN
+    party_c_coverage: low
+  expected_behavior:
+  - Markera begränsat regionalt underlag.
+  - Inte använda nationella dokument som om de vore regional OFFICIAL_POLICY utan
+    tydlig markering.
+  - Inte sätta negativ matchningspoäng enbart på grund av källbrist.
+  severity: high
+  pass_criteria:
+    all_required_behaviors: true
+    forbidden_behaviors_absent: true
+  rules:
+  - G8-insufficient-evidence
+  - NEUT-3
+  - VERIFY-12
+- id: H2-015
+  title: Full regional end-to-end-analys
+  category: end_to_end
+  type: END_TO_END
+  prompt: Gör en djup jämförelse av partierna i Region Norrbotten om vårdköer under
+    mandatperioden 2022–2026. Visa vad de sagt, föreslagit, röstat på, vad som beslutats
+    och vad uppföljningen visar.
+  context:
+    level: REGION_NORRBOTTEN
+    period: 2022-2026
+    topic: vårdköer
+  expected_behavior:
+  - Avgränsa tydligt till Region Norrbotten och rätt tidsperiod.
+  - Använd regional OFFICIAL_POLICY.
+  - Följ relevanta PROPOSAL, VOTE, DECISION och OUTCOME.
+  - Prioritera protokoll/originalhandlingar framför sammanfattningssidor för exakta
+    slutsatser.
+  - Redovisa källkonflikter och saknade steg.
+  - Använd samma metod för alla partier.
+  - Hålla nationella vårdramar separata från regionalt agerande.
+  - Avsluta med en evidensbaserad slutsats och säkerhetsgrad.
+  must_include:
+  - OFFICIAL_POLICY
+  - PROPOSAL
+  - VOTE
+  - DECISION
+  - OUTCOME
+  - Region Norrbotten
+  severity: critical
+  pass_criteria:
+    all_required_behaviors: true
+    forbidden_behaviors_absent: true
+  rules:
+  - C3-source-guide
+  - D4-region-knowledge
+  - E3-deep-evidence
+  - COMP-1
+  - COMP-8
+  - VERIFY-8
+  - VERIFY-9
+  - VERIFY-10
+  - VERIFY-19

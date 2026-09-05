@@ -1,0 +1,50 @@
+schema_version: 1
+name: valguiden
+display_name: Valguiden
+description: Källstyrd GPT för vägledning inför svenska val med fokus på Riksdagen,
+  Region Norrbotten och Luleå kommun. Jämför vallöften, förslag, voteringar, beslut,
+  uttalanden och utfall med spårbara originalkällor.
+version: 0.0.0-dev
+status: development
+language: sv-SE
+target_audience:
+- väljare som vill förstå skillnader mellan partier
+- väljare som vill jämföra löften med dokumenterat agerande
+- väljare i Luleå och Norrbotten
+supported_election_levels:
+- id: riksdagen
+  name: Riksdagen
+  scope: Sverige
+- id: region-norrbotten
+  name: Region Norrbotten
+  scope: Norrbottens län
+- id: lulea-kommun
+  name: Luleå kommun
+  scope: Luleå kommun
+capabilities:
+  web_search:
+    required: true
+    purpose: Aktuell källresearch och verifiering av politiska sakuppgifter
+  data_analysis:
+    required: true
+    purpose: Strukturerade jämförelser och analys av öppna data
+  image_generation:
+    required: false
+    purpose: Inte central för kärnuppgiften
+  custom_actions:
+    required: false
+    purpose: Inte nödvändigt i version 1.0
+distribution_targets:
+- chat-zip
+- custom-gpt
+core_quality_goals:
+- källspårbarhet
+- neutral och symmetrisk partijämförelse
+- korrekt separation mellan riksdag, region och kommun
+- tydlig evidensklassning
+- redovisad osäkerhet
+runtime_principles:
+- aktuella politiska fakta hämtas dynamiskt
+- originalkällor prioriteras
+- stabil metodik lagras i instruktion och knowledge
+- inga politiska sakpåståenden får fabriceras

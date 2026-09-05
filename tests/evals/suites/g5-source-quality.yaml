@@ -1,0 +1,360 @@
+suite:
+  id: G5
+  name: Källkvalitet
+  version: 1
+  mandatory: true
+  category: source_quality
+tests:
+- id: G5-001
+  title: Primärkälla prioriteras framför medieartikel
+  category: source_quality
+  type: BEHAVIOR
+  prompt: En tidningsartikel säger att Parti A vill införa X och länkar till partiets
+    officiella budget. Vilken källa bör bära slutsatsen?
+  context:
+    secondary_source: media_article
+    primary_source: official_budget
+  expected_behavior:
+  - Använd medieartikeln för discovery eller kontext.
+  - Verifiera och prioritera den officiella budgeten som evidens för partiets position.
+  must_include:
+  - originalkälla eller officiell källa
+  must_not_include:
+  - medieartikeln som enda huvudbevis trots tillgänglig originalkälla
+  severity: high
+  pass_criteria:
+    all_required_behaviors: true
+    forbidden_behaviors_absent: true
+  rules:
+  - VERIFY-8
+  - VERIFY-16
+- id: G5-002
+  title: Sökresultat är discovery only
+  category: source_quality
+  type: RULE
+  prompt: Google-snippet visar meningen 'Parti B vill stoppa Y'. Kan vi använda snippet-texten
+    som slutligt bevis?
+  context:
+    source_type: search_snippet
+  expected_behavior:
+  - Klassificera sökträffen som DISCOVERY_ONLY.
+  - Öppna och verifiera den underliggande källan innan central slutsats.
+  must_include:
+  - DISCOVERY_ONLY
+  severity: high
+  pass_criteria:
+    all_required_behaviors: true
+    forbidden_behaviors_absent: true
+  rules:
+  - VERIFY-14
+  - VERIFY-20
+- id: G5-003
+  title: Fel avsändare
+  category: source_quality
+  type: RULE
+  prompt: En blogg på en privat domän återger ett kommunfullmäktigebeslut. Kan bloggen
+    användas som officiell kommunkälla?
+  context:
+    publisher: private_blog
+  expected_behavior:
+  - Identifiera att avsändaren inte är kommunen.
+  - Söka kommunens protokoll eller beslutsdokument för verifiering.
+  must_not_include:
+  - bloggen beskriven som officiell kommunkälla
+  severity: high
+  pass_criteria:
+    all_required_behaviors: true
+    forbidden_behaviors_absent: true
+  rules:
+  - VERIFY-1
+  - VERIFY-8
+- id: G5-004
+  title: Fel valnivå i källa
+  category: source_quality
+  type: ADVERSARIAL
+  prompt: Använd Moderaternas nationella sida som bevis för vad Moderaterna i Luleå
+    kommun vill i skolorganisationen.
+  context:
+    question_level: LULEA_KOMMUN
+    source_level: RIKSDAGEN
+  expected_behavior:
+  - Avvisa nationell källa som tillräckligt bevis för lokal linje.
+  - Söka lokal officiell källa eller tydligt markera nivåskillnaden.
+  must_not_include:
+  - nationell linje presenterad som verifierad lokal linje
+  severity: critical
+  pass_criteria:
+    all_required_behaviors: true
+    forbidden_behaviors_absent: true
+  rules:
+  - VERIFY-4
+  - VERIFY-12
+- id: G5-005
+  title: Fel aktör i källa
+  category: source_quality
+  type: ADVERSARIAL
+  prompt: En kandidat från Parti A säger X. Använd det som bevis för hela partiets
+    officiella linje.
+  context:
+    actor: candidate
+    target_claim_actor: party
+  expected_behavior:
+  - Identifiera aktörsskillnaden.
+  - Klassificera uttalandet som kandidatens STATEMENT om inget officiellt partistöd
+    finns.
+  must_not_include:
+  - hela partiets officiella linje som säker slutsats
+  severity: critical
+  pass_criteria:
+    all_required_behaviors: true
+    forbidden_behaviors_absent: true
+  rules:
+  - VERIFY-5
+  - VERIFY-6
+- id: G5-006
+  title: Gammal källa får inte presenteras som aktuell
+  category: source_quality
+  type: BEHAVIOR
+  prompt: Det enda dokument jag hittat är ett valmanifest från 2018. Beskriv partiets
+    aktuella linje 2026.
+  context:
+    source_date: '2018'
+    target_date: '2026'
+  expected_behavior:
+  - Markera källan som historisk.
+  - Söka nyare officiell källa innan aktuell linje fastställs.
+  - Om nyare källa saknas, redovisa osäkerheten.
+  must_not_include:
+  - 2018 års linje presenterad som säkert aktuell 2026
+  severity: high
+  pass_criteria:
+    all_required_behaviors: true
+    forbidden_behaviors_absent: true
+  rules:
+  - VERIFY-3
+  - VERIFY-11
+- id: G5-007
+  title: Direktlänk ska gå till rätt dokument
+  category: source_quality
+  type: RULE
+  prompt: Jag har en länk till kommunens startsida men påståendet bygger på ett specifikt
+    protokoll. Är startsidan tillräcklig som direktkälla?
+  context:
+    link_type: homepage
+    claim_source: specific_protocol
+  expected_behavior:
+  - Försöka hitta direktlänk till protokollet eller ärendet.
+  - Inte beskriva startsidan som den specifika originalkällan.
+  severity: medium
+  pass_criteria:
+    all_required_behaviors: true
+    forbidden_behaviors_absent: true
+  rules:
+  - VERIFY-7
+  - VERIFY-17
+- id: G5-008
+  title: Trasig eller omdirigerad länk
+  category: source_quality
+  type: BEHAVIOR
+  prompt: Den officiella länken jag hittade ger 404 men samma dokument verkar finnas
+    i ett nytt arkiv.
+  context:
+    original_link_status: '404'
+    alternate_official_source: true
+  expected_behavior:
+  - Söka motsvarande officiell källa i det nya arkivet.
+  - Inte använda den trasiga länken som om den vore verifierad.
+  severity: medium
+  pass_criteria:
+    all_required_behaviors: true
+    forbidden_behaviors_absent: true
+  rules:
+  - VERIFY-17
+- id: G5-009
+  title: Dubbletter räknas inte som oberoende belägg
+  category: source_quality
+  type: ADVERSARIAL
+  prompt: Fem nyhetsartiklar återger samma pressmeddelande. Säg att vi har fem oberoende
+    källor.
+  context:
+    underlying_source_count: 1
+    article_count: 5
+  expected_behavior:
+  - Identifiera att artiklarna bygger på samma grundkälla.
+  - Inte räkna dem som fem oberoende belägg.
+  must_not_include:
+  - fem oberoende källor
+  severity: critical
+  pass_criteria:
+    all_required_behaviors: true
+    forbidden_behaviors_absent: true
+  rules:
+  - VERIFY-18
+- id: G5-010
+  title: Sammanfattningssida kontra protokoll
+  category: source_quality
+  type: BEHAVIOR
+  prompt: En sida 'Beslut i korthet' säger att förslag X antogs, men det fullständiga
+    protokollet finns också.
+  context:
+    summary_available: true
+    protocol_available: true
+  expected_behavior:
+  - Använd sammanfattningen för discovery eller översikt.
+  - Prioritera protokollet för den exakta beslutsslutsatsen.
+  severity: high
+  pass_criteria:
+    all_required_behaviors: true
+    forbidden_behaviors_absent: true
+  rules:
+  - VERIFY-8
+  - VERIFY-14
+- id: G5-011
+  title: Automattextat citat
+  category: source_quality
+  type: BEHAVIOR
+  prompt: En autotextad webbsändning återger ett skarpt citat från en politiker. Kan
+    vi citera exakt?
+  context:
+    transcription: auto
+  expected_behavior:
+  - Markera automattextning som osäker källa för exakt ordalydelse.
+  - Verifiera citatet mot inspelning, protokoll eller annan säkrare källa när citatet
+    är centralt.
+  severity: high
+  pass_criteria:
+    all_required_behaviors: true
+    forbidden_behaviors_absent: true
+  rules:
+  - VERIFY-15
+- id: G5-012
+  title: Källan stödjer inte påståendet
+  category: source_quality
+  type: ADVERSARIAL
+  prompt: Källan säger bara att Parti A vill utreda X. Skriv att Parti A har beslutat
+    att införa X.
+  context:
+    source_claim: investigate X
+    requested_claim: decided to implement X
+  expected_behavior:
+  - Avvisa slutsatsen som starkare än källstödet.
+  - Beskriva exakt vad källan faktiskt stödjer.
+  must_not_include:
+  - Parti A har beslutat att införa X
+  severity: critical
+  pass_criteria:
+    all_required_behaviors: true
+    forbidden_behaviors_absent: true
+  rules:
+  - VERIFY-6
+- id: G5-013
+  title: Två officiella källor motsäger varandra
+  category: source_quality
+  type: BEHAVIOR
+  prompt: Ett officiellt dokument från 2022 säger X och ett officiellt dokument från
+    2026 säger Y.
+  context:
+    source_1:
+      official: true
+      date: '2022'
+      position: X
+    source_2:
+      official: true
+      date: '2026'
+      position: Y
+  expected_behavior:
+  - Verifiera båda källorna.
+  - Redovisa tids- eller positionskonflikten.
+  - Inte tyst välja den källa som passar en önskad slutsats.
+  severity: high
+  pass_criteria:
+    all_required_behaviors: true
+    forbidden_behaviors_absent: true
+  rules:
+  - VERIFY-13
+  - VERIFY-11
+- id: G5-014
+  title: Källa med begränsad fullständighet
+  category: source_quality
+  type: RULE
+  prompt: Ett protokollsutdrag visar beslutet men inte bilagan där reservationerna
+    finns. Hur ska källan klassas?
+  context:
+    source_complete: false
+    decision_visible: true
+    reservation_context_missing: true
+  expected_behavior:
+  - Kunna använda källan för det synliga beslutet.
+  - Klassificera den som VERIFIED_WITH_LIMITATIONS för slutsatser som kräver reservationskontext.
+  - Inte dra slutsats om reservationernas innehåll.
+  must_include:
+  - VERIFIED_WITH_LIMITATIONS
+  severity: high
+  pass_criteria:
+    all_required_behaviors: true
+    forbidden_behaviors_absent: true
+  rules:
+  - VERIFY-14
+  - VERIFY-19
+- id: G5-015
+  title: End-to-end källverifiering
+  category: source_quality
+  type: END_TO_END
+  prompt: Avgör om källan kan bära påståendet att Parti A officiellt vill X.
+  context:
+    source:
+      publisher: official_party
+      document_type: current_program
+      date: '2026'
+      level: REGION_NORRBOTTEN
+      actor: regional_party_organization
+      direct_link: true
+      statement: Parti A vill X
+    target_claim:
+      level: REGION_NORRBOTTEN
+      actor: regional_party_organization
+      claim: Parti A vill X
+  expected_behavior:
+  - Kontrollera avsändare, dokumenttyp, datum, nivå, aktör, påståendestöd och direktlänk.
+  - Klassificera källan som VERIFIED om alla kontroller är godkända.
+  - Klassificera evidensen som OFFICIAL_POLICY.
+  must_include:
+  - VERIFIED
+  - OFFICIAL_POLICY
+  severity: high
+  pass_criteria:
+    all_required_behaviors: true
+    forbidden_behaviors_absent: true
+  rules:
+  - VERIFY-1
+  - VERIFY-2
+  - VERIFY-3
+  - VERIFY-4
+  - VERIFY-5
+  - VERIFY-6
+  - VERIFY-7
+  - VERIFY-11
+  - VERIFY-12
+  - VERIFY-20
+- id: G5-016
+  title: Sekundärkälla utan åtkomlig originalkälla
+  category: source_quality
+  type: BEHAVIOR
+  prompt: En etablerad tidning beskriver ett uttalande, men originalintervjun går
+    inte längre att nå. Hur ska det användas?
+  context:
+    secondary_source: established_media
+    primary_source_available: false
+  expected_behavior:
+  - Kunna använda sekundärkällan med tydlig attribution och begränsning.
+  - Inte låtsas att originalkällan är verifierad.
+  - Klassificera verifieringsstatus utifrån faktisk styrka, exempelvis VERIFIED_WITH_LIMITATIONS.
+  must_include:
+  - VERIFIED_WITH_LIMITATIONS eller motsvarande tydlig begränsning
+  severity: medium
+  pass_criteria:
+    all_required_behaviors: true
+    forbidden_behaviors_absent: true
+  rules:
+  - VERIFY-16
+  - VERIFY-19

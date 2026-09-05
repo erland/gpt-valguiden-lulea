@@ -1,0 +1,9 @@
+release_candidate: v1.0.0-rc.1
+pilot_status: FAIL
+issues:
+- id: PILOT-003
+  severity: critical
+  issue: 'Runtime instructions lack explicit pilot concept(s): besvarad, bifall'
+  recommended_fix: Add or clarify the relevant canonical runtime rule, then create/verify
+    regression coverage.
+recommended_l7_action: Fix all critical/high issues and add regression coverage.

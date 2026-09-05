@@ -1,0 +1,39 @@
+{
+  "run_id": "L2-neutrality-review",
+  "generated_at": "2026-09-05T05:11:18.756973+00:00",
+  "risk": "LOW",
+  "checks": {
+    "same_method_principle": true,
+    "no_false_balance": true,
+    "same_period": true,
+    "same_source_order": true,
+    "same_evidence_threshold": true,
+    "same_detail_level": true,
+    "positive_and_negative_checks": true,
+    "no_normative_vote_advice": true,
+    "user_preferences_after_fact_collection": true,
+    "no_hidden_ranking": true,
+    "no_false_precision": true,
+    "missing_data_not_zero": true,
+    "individual_not_party": true,
+    "level_separation": true,
+    "activity_not_influence": true,
+    "activity_not_competence": true,
+    "no_obvious_partisan_language": true,
+    "neutrality_eval_coverage": true,
+    "adversarial_loaded_prompt_coverage": true,
+    "custom_gpt_neutrality_parity": true
+  },
+  "custom_checks": {
+    "same_method": true,
+    "no_false_balance": true,
+    "no_vote_advice": true,
+    "user_priorities_transparent": true,
+    "missing_data_not_zero": true,
+    "individual_not_party": true
+  },
+  "neutrality_eval_count": 34,
+  "loaded_prompt_eval_count": 24,
+  "suspect_lines": [],
+  "status": "PASS"
+}

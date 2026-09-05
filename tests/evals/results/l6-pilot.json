@@ -1,0 +1,33 @@
+{
+  "run_id": "L6-internal-pilot",
+  "pilot_type": "internal desk pilot against v1.0.0-rc.1 runtime rules",
+  "created_at": "2026-09-05T05:21:29.363140+00:00",
+  "cases": 12,
+  "passed_cases": 11,
+  "failed_cases": 1,
+  "critical_issues": 1,
+  "high_issues": 0,
+  "status": "FAIL",
+  "limitations": [
+    "This is an internal desk pilot, not an external human user study.",
+    "It validates that the RC explicitly encodes the behaviors needed for realistic pilot journeys.",
+    "Live web-source quality still depends on runtime browsing and source availability."
+  ],
+  "issues": [
+    {
+      "id": "PILOT-003",
+      "severity": "critical",
+      "issue": "Runtime instructions lack explicit pilot concept(s): besvarad, bifall",
+      "recommended_fix": "Add or clarify the relevant canonical runtime rule, then create/verify regression coverage."
+    }
+  ],
+  "custom_gpt_checks": {
+    "three_levels": true,
+    "evidence_model": true,
+    "vote_context": true,
+    "no_fabrication": true,
+    "position_change_scale": true,
+    "user_priority_transparency": true,
+    "activity_not_influence": true
+  }
+}

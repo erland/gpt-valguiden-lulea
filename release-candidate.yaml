@@ -1,0 +1,21 @@
+release_candidate:
+  tag: v1.0.0-rc.2
+  version: 1.0.0-rc.2
+  status: candidate_after_pilot_fix
+  created_at: '2026-09-05T05:23:34.001607+00:00'
+  fixes:
+  - 'PILOT-003: explicit Luleå rule that besvarad != bifall'
+  assets:
+  - file: valguiden-chat-1.0.0-rc.2.zip
+    size_bytes: 88466
+    sha256: 98b0df22102225c522dfb1976ca830af422497baf26f3bbd5a25b6857b0a2c0a
+  - file: valguiden-custom-gpt-1.0.0-rc.2.zip
+    size_bytes: 28438
+    sha256: ed0effbf79639f826afd2c7afb589e43605d8311541e09a79aed336d91ec5cb5
+  gates:
+    build: PASS
+    pilot_rerun: PASS
+    release_validation: PASS
+    custom_instruction_limit: PASS
+    H3_016_regression: PASS
+  next_step: L8 v1.0.0

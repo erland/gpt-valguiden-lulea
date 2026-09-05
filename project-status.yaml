@@ -1,0 +1,166 @@
+schema_version: 1
+project: valguiden
+updated_at: '2026-09-05T05:24:52.618061+00:00'
+phase:
+  id: L
+  name: Release
+  status: completed
+current_step:
+  id: L8
+  name: Skapa v1.0.0
+  status: completed
+next_step: null
+completed_steps:
+- id: A1
+  name: Skapa projektstruktur
+- id: A2
+  name: Definiera projektmetadata
+- id: A3
+  name: Lägg in behovs- och målbild
+- id: A4
+  name: Skapa initial projektstatus
+- id: B1
+  name: Skapa första version av canonical instruktion
+- id: B2
+  name: Inför valnivålogik
+- id: B3
+  name: Inför ansvarsnivåmodell
+- id: B4
+  name: Inför evidensklassning
+- id: B5
+  name: Inför symmetrisk jämförelsemetod
+- id: B6
+  name: Inför regler för politisk neutralitet
+- id: C1
+  name: Skapa generell källpolicy
+- id: C2
+  name: Skapa källguide för Riksdagen
+- id: C3
+  name: Skapa källguide för Region Norrbotten
+- id: C4
+  name: Skapa källguide för Luleå kommun
+- id: C5
+  name: Definiera webbresearchflöde
+- id: C6
+  name: Definiera källverifiering
+- id: D1
+  name: 'Skapa Knowledge: svensk ansvarsfördelning'
+- id: D2
+  name: 'Skapa Knowledge: evidensmodell'
+- id: D3
+  name: 'Skapa Knowledge: Riksdagen'
+- id: D4
+  name: 'Skapa Knowledge: Region Norrbotten'
+- id: D5
+  name: 'Skapa Knowledge: Luleå kommun'
+- id: D6
+  name: 'Skapa Knowledge: neutral jämförelsemetod'
+- id: E1
+  name: Designa kort svar
+- id: E2
+  name: Designa partijämförelse
+- id: E3
+  name: Designa djup evidensanalys
+- id: E4
+  name: Designa positionsförändringsanalys
+- id: E5
+  name: Designa analys utifrån användarprioriteringar
+- id: F1
+  name: Definiera kandidatmodell
+- id: F2
+  name: Definiera aktivitetsmått
+- id: F3
+  name: Designa kandidatjämförelse
+- id: G1
+  name: Skapa evalramverk
+- id: G2
+  name: Skapa evals för valnivå
+- id: G3
+  name: Skapa evals för evidensklassning
+- id: G4
+  name: Skapa evals för neutral jämförelse
+- id: G5
+  name: Skapa evals för källkvalitet
+- id: G6
+  name: Skapa evals för komplex votering
+- id: G7
+  name: Skapa evals för motstridiga källor
+- id: G8
+  name: Skapa evals för otillräckligt underlag
+- id: G9
+  name: Skapa evals för politiskt tryck
+- id: G10
+  name: Skapa evals för kandidater
+- id: H1
+  name: Skapa E2E-test för väljare från start
+- id: H2
+  name: Skapa E2E-test för Region Norrbotten
+- id: H3
+  name: Skapa E2E-test för Luleå kommun
+- id: H4
+  name: Skapa E2E-test för Riksdagen
+- id: H5
+  name: Skapa E2E-test för positionsförändring
+- id: I1
+  name: Skapa Chat ZIP-distribution
+- id: I2
+  name: Skapa Custom GPT-distribution
+- id: I3
+  name: Harmonisera Chat och Custom GPT-distribution
+- id: J1
+  name: Skapa scripts för bygg och validering
+- id: J2
+  name: Skapa CI för PR och commit
+- id: J3
+  name: Skapa release-workflow
+- id: J4
+  name: Skapa release-validering
+- id: K1
+  name: Förbättra README och användardokumentation
+- id: K2
+  name: Förbättra utvecklardokumentation
+- id: K3
+  name: Rensa och förenkla projektet
+- id: K4
+  name: Kör konsistensgranskning
+- id: L1
+  name: Kör full eval
+- id: L2
+  name: Kör neutralitetsgranskning
+- id: L3
+  name: Kör spårbarhetsgranskning
+- id: L4
+  name: Testa distributionerna
+- id: L5
+  name: Skapa release candidate
+- id: L6
+  name: Kör pilot
+  result: completed_with_findings
+- id: L7
+  name: Åtgärda pilotutfall
+- id: L8
+  name: Skapa v1.0.0
+blocked_steps: []
+quality:
+  overall: not_started
+  instruction_tests: not_started
+  evals: not_started
+  e2e: not_started
+  source_validation: not_started
+  neutrality_review: not_started
+distribution:
+  chat_zip: not_started
+  custom_gpt: not_started
+release:
+  version: 1.0.0
+  tag: v1.0.0
+  status: stable
+progress:
+  total_steps: 64
+  completed_count: 64
+  percent: 100.0
+status_rules:
+  source_of_truth: project-status.yaml
+  human_summary: STATUS.md
+  update_after_each_step: true
+  next_step_must_be_explicit: true

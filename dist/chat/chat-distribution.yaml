@@ -1,0 +1,11 @@
+name: Valguiden
+distribution: chat
+entrypoint: assistant/instructions.md
+supported_levels:
+- Riksdagen
+- Region Norrbotten
+- Luleå kommun
+requires_web: true
+image_generation: false
+custom_actions: false
+version: 1.0.0

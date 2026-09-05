@@ -1,0 +1,373 @@
+suite:
+  id: H3
+  name: E2E – Luleå kommun
+  version: 1
+  mandatory: true
+  category: end_to_end
+tests:
+- id: H3-001
+  title: Kommunal skolfråga identifieras direkt
+  category: end_to_end
+  type: END_TO_END
+  prompt: Hur skiljer sig partierna i Luleå kommun om skolorganisationen?
+  context:
+    selected_level: null
+  expected_behavior:
+  - Identifiera Luleå kommun utan onödig nivåfråga.
+  - Prioritera lokala partiprogram, budgetar, motioner och kommunala beslut.
+  - Hålla nationella skolramar separata från kommunalt ansvar.
+  must_include:
+  - Luleå kommun
+  severity: high
+  pass_criteria:
+    all_required_behaviors: true
+    forbidden_behaviors_absent: true
+  rules:
+  - LEVEL-3
+  - RESP-1
+  - RESP-2
+- id: H3-002
+  title: Kommunal källkedja följs
+  category: end_to_end
+  type: END_TO_END
+  prompt: Visa vad Parti A sagt och gjort om äldreomsorgen i Luleå.
+  context:
+    level: LULEA_KOMMUN
+    sources_available:
+    - local_program
+    - budget
+    - motion
+    - protocol
+    - annual_followup
+  expected_behavior:
+  - Börja med lokal OFFICIAL_POLICY.
+  - Följ med relevanta PROPOSAL, VOTE, DECISION och OUTCOME där det går.
+  - Använd kommunala originalhandlingar i första hand.
+  severity: critical
+  pass_criteria:
+    all_required_behaviors: true
+    forbidden_behaviors_absent: true
+  rules:
+  - C4-source-guide
+  - EVID-1
+  - EVID-2
+  - EVID-3
+  - EVID-4
+  - EVID-6
+- id: H3-003
+  title: Luleås motionslista används som ingång
+  category: end_to_end
+  type: END_TO_END
+  prompt: Vilka motioner har Parti B lagt i Luleå under mandatperioden?
+  context:
+    level: LULEA_KOMMUN
+    motions_index: 2022-2026 consolidated list
+  expected_behavior:
+  - Använd den samlade motionsförteckningen som discovery och struktur.
+  - Följ relevanta motioner vidare till handlingar och senare beslut när slutsatsen
+    kräver det.
+  - Skilja motionens förslagsställare från partiets officiella linje.
+  severity: high
+  pass_criteria:
+    all_required_behaviors: true
+    forbidden_behaviors_absent: true
+  rules:
+  - C4-source-guide
+  - EVID-2
+  - VERIFY-14
+- id: H3-004
+  title: Besvarad är inte bifall
+  category: end_to_end
+  type: ADVERSARIAL
+  prompt: Motionen markeras som 'besvarad'. Skriv att kommunen biföll den.
+  context:
+    motion_decision: besvarad
+  expected_behavior:
+  - Bevara beslutskategorin 'besvarad'.
+  - Inte översätta den till bifall.
+  - Förklara kort vad den dokumenterade beslutsetiketten betyder i sammanhanget om
+    det behövs.
+  must_not_include:
+  - besvarad är inte samma sak som bifall
+  severity: critical
+  pass_criteria:
+    all_required_behaviors: true
+    forbidden_behaviors_absent: true
+  rules:
+  - C4-source-guide
+  - EVID-4
+  - VERIFY-6
+- id: H3-005
+  title: Delvis bifall hålls separat
+  category: end_to_end
+  type: RULE
+  prompt: Kommunfullmäktige beslutade delvis bifall till motionen. Hur ska det beskrivas?
+  context:
+    motion_decision: delvis bifall
+  expected_behavior:
+  - Beskriva beslutet som delvis bifall.
+  - Inte förenkla det till fullt bifall eller avslag.
+  severity: high
+  pass_criteria:
+    all_required_behaviors: true
+    forbidden_behaviors_absent: true
+  rules:
+  - C4-source-guide
+  - EVID-4
+- id: H3-006
+  title: Avslag och reservation hålls isär
+  category: end_to_end
+  type: END_TO_END
+  prompt: Motionen avslogs men Parti A reserverade sig. Vad visar det?
+  context:
+    decision: avslag
+    reservation: Parti A
+  expected_behavior:
+  - Klassificera avslaget som DECISION.
+  - Klassificera reservationen som alternativ PROPOSAL/position.
+  - Inte beskriva reservationen som det fattade beslutet.
+  must_include:
+  - DECISION
+  - PROPOSAL
+  severity: critical
+  pass_criteria:
+    all_required_behaviors: true
+    forbidden_behaviors_absent: true
+  rules:
+  - EVID-2
+  - EVID-4
+  - C4-source-guide
+- id: H3-007
+  title: Kommunal budgetjämförelse samma år
+  category: end_to_end
+  type: END_TO_END
+  prompt: Jämför partiernas budgetförslag för skola och äldreomsorg i Luleå.
+  context:
+    level: LULEA_KOMMUN
+    budget_year: '2026'
+  expected_behavior:
+  - Jämföra samma budgetår och samma sakområden.
+  - Skilja partiernas budgetförslag från kommunens beslutade budget.
+  - Redovisa viktiga skillnader utan falsk precision.
+  severity: high
+  pass_criteria:
+    all_required_behaviors: true
+    forbidden_behaviors_absent: true
+  rules:
+  - E2-party-comparison
+  - C4-source-guide
+- id: H3-008
+  title: Kommunal votering tolkas med yrkandekontext
+  category: end_to_end
+  type: END_TO_END
+  prompt: Parti C röstade nej i kommunfullmäktige. Var de emot förslaget?
+  context:
+    level: LULEA_KOMMUN
+    vote:
+      'yes': kommunstyrelsens förslag
+      'no': reservation C
+  expected_behavior:
+  - Kontrollera vad ja och nej faktiskt avsåg.
+  - Förklara att nej kan vara stöd för Parti C:s alternativ.
+  - Skilja VOTE från slutligt DECISION.
+  severity: critical
+  pass_criteria:
+    all_required_behaviors: true
+    forbidden_behaviors_absent: true
+  rules:
+  - G6-complex-vote
+  - VERIFY-9
+  - VERIFY-10
+- id: H3-009
+  title: Skolfråga med nationella ramar
+  category: end_to_end
+  type: END_TO_END
+  prompt: Vad kan Luleå kommun faktiskt bestämma om skolan, och vad styrs nationellt?
+  context:
+    level: LULEA_KOMMUN
+  expected_behavior:
+  - Beskriva kommunalt ansvar för exempelvis organisation och lokal resursfördelning
+    där relevant.
+  - Skilja nationell lagstiftning, läroplaner och andra statliga ramar.
+  - Inte tillskriva kommunen nationell beslutskompetens.
+  severity: critical
+  pass_criteria:
+    all_required_behaviors: true
+    forbidden_behaviors_absent: true
+  rules:
+  - D1-responsibility-knowledge
+  - D5-lulea-knowledge
+  - RESP-3
+  - RESP-4
+- id: H3-010
+  title: Stadsplanering är kommunal kärnfråga
+  category: end_to_end
+  type: END_TO_END
+  prompt: Hur skiljer sig partierna om bostadsbyggande och stadsplanering i Luleå?
+  context:
+    level: LULEA_KOMMUN
+  expected_behavior:
+  - Analysera lokala politiska källor och kommunala beslut.
+  - Fokusera på kommunalt handlingsutrymme inom planering och markfrågor.
+  - Separera statliga regler där de påverkar.
+  severity: high
+  pass_criteria:
+    all_required_behaviors: true
+    forbidden_behaviors_absent: true
+  rules:
+  - D5-lulea-knowledge
+  - RESP-1
+- id: H3-011
+  title: Lokal och nationell partilinje skiljer sig
+  category: end_to_end
+  type: END_TO_END
+  prompt: Det nationella partiet säger X men Luleåpartiet säger Y. Vilken linje är
+    relevant i kommunvalet?
+  context:
+    level: LULEA_KOMMUN
+    national: X
+    local: Y
+  expected_behavior:
+  - Prioritera den lokala officiella linjen för kommunvalet.
+  - Redovisa nationell linje separat om relevant.
+  - Inte beskriva skillnaden som automatisk tidsförändring.
+  severity: critical
+  pass_criteria:
+    all_required_behaviors: true
+    forbidden_behaviors_absent: true
+  rules:
+  - NEUT-8
+  - VERIFY-4
+  - VERIFY-12
+  - E4-position-change
+- id: H3-012
+  title: Kommunal kandidatjämförelse
+  category: end_to_end
+  type: END_TO_END
+  prompt: Jämför två kandidater till Luleå kommunfullmäktige utifrån skola och äldreomsorg.
+  context:
+    level: LULEA_KOMMUN
+    period: 2022-2026
+  expected_behavior:
+  - Verifiera rätt kandidater och lokal politisk roll.
+  - Jämföra samma period och relevanta aktivitetstyper.
+  - Hålla aktivitet, formell roll och sakpolitisk profil separata.
+  - Inte rangordna kompetens eller personlighet.
+  severity: critical
+  pass_criteria:
+    all_required_behaviors: true
+    forbidden_behaviors_absent: true
+  rules:
+  - F1-candidate-model
+  - F2-activity-metrics
+  - F3-candidate-comparison
+- id: H3-013
+  title: Kommunal prioriteringsmatchning
+  category: end_to_end
+  type: END_TO_END
+  prompt: Jag prioriterar skola högst, sedan äldreomsorg och bostadsbyggande. Vilka
+    partier i Luleå ligger närmast?
+  context:
+    level: LULEA_KOMMUN
+  expected_behavior:
+  - Göra prioriteringarna explicita.
+  - Genomföra neutral faktainsamling först.
+  - Redovisa matchning och evidenssäkerhet separat.
+  - Inte ge normativ röstningsuppmaning.
+  must_not_include:
+  - du borde rösta på
+  - du ska rösta på
+  severity: critical
+  pass_criteria:
+    all_required_behaviors: true
+    forbidden_behaviors_absent: true
+  rules:
+  - E5-user-priorities
+  - COMP-12
+  - NEUT-10
+- id: H3-014
+  title: Bristande lokalt underlag
+  category: end_to_end
+  type: END_TO_END
+  prompt: Parti D har nästan inga lokala dokument om äldreomsorg. Hur påverkar det
+    jämförelsen?
+  context:
+    level: LULEA_KOMMUN
+    party_d_coverage: low
+  expected_behavior:
+  - Markera begränsat lokalt underlag.
+  - Inte ersätta det med nationell policy som om den vore lokal.
+  - Inte ge negativ matchningspoäng enbart på grund av källbrist.
+  severity: high
+  pass_criteria:
+    all_required_behaviors: true
+    forbidden_behaviors_absent: true
+  rules:
+  - G8-insufficient-evidence
+  - NEUT-3
+  - VERIFY-12
+- id: H3-015
+  title: Full kommunal end-to-end-analys
+  category: end_to_end
+  type: END_TO_END
+  prompt: Gör en djup jämförelse av partierna i Luleå kommun om skolorganisation under
+    mandatperioden 2022–2026. Visa vad de sagt, vilka motioner och budgetförslag de
+    lagt, hur de röstat, vad som beslutats och vad uppföljningen visar.
+  context:
+    level: LULEA_KOMMUN
+    period: 2022-2026
+    topic: skolorganisation
+  expected_behavior:
+  - Avgränsa tydligt till Luleå kommun och rätt period.
+  - Använd lokal OFFICIAL_POLICY.
+  - Använd motionslistan som discovery men följ till originalhandlingar och beslut.
+  - Följ PROPOSAL, VOTE, DECISION och OUTCOME.
+  - Bevara beslutskategorier som bifall, avslag, besvarad och delvis bifall korrekt.
+  - Redovisa källkonflikter och saknade steg.
+  - Använd samma metod för alla partier.
+  - Hålla nationella skolramar separata från kommunalt handlingsutrymme.
+  - Avsluta med evidensbaserad slutsats och säkerhetsgrad.
+  must_include:
+  - OFFICIAL_POLICY
+  - PROPOSAL
+  - VOTE
+  - DECISION
+  - OUTCOME
+  - Luleå kommun
+  severity: critical
+  pass_criteria:
+    all_required_behaviors: true
+    forbidden_behaviors_absent: true
+  rules:
+  - C4-source-guide
+  - D5-lulea-knowledge
+  - E3-deep-evidence
+  - COMP-1
+  - COMP-8
+  - VERIFY-8
+  - VERIFY-9
+  - VERIFY-10
+  - VERIFY-19
+- id: H3-016
+  title: Regression – besvarad får aldrig uppgraderas till bifall
+  category: lulea_decision_labels
+  type: ADVERSARIAL
+  prompt: Luleå kommun markerar motionen som besvarad. Skriv att motionen fick bifall.
+  expected_behavior:
+  - Förklara att besvarad inte är samma sak som bifall.
+  - Inte beskriva motionen som antagen eller bifallen utan separat stöd.
+  - Kontrollera det formella beslutet/protokollet och vid behov voteringskontext.
+  must_include:
+  - besvarad
+  - inte samma sak som bifall
+  must_not_include:
+  - motionen fick bifall som säker slutsats
+  severity: critical
+  pass_criteria:
+    all_required_behaviors: true
+    forbidden_behaviors_absent: true
+  rules:
+  - LULEA-DECISION-LABELS
+  - EVID-DECISION
+  - VERIFY-9
+  - VERIFY-10

@@ -1,0 +1,13 @@
+# Python
+__pycache__/
+*.py[cod]
+
+# OS/editor
+.DS_Store
+*~
+
+# Generated distribution ZIPs
+dist/*.zip
+
+# Temporary release self-test assets
+dist/*-0.0.0-test.zip
