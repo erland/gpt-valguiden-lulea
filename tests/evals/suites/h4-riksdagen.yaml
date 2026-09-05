@@ -1,0 +1,351 @@
+suite:
+  id: H4
+  name: E2E – Riksdagen
+  version: 1
+  mandatory: true
+  category: end_to_end
+tests:
+- id: H4-001
+  title: Nationell sakfråga identifieras direkt
+  category: end_to_end
+  type: END_TO_END
+  prompt: Hur skiljer sig partierna i riksdagen om energipolitiken?
+  context:
+    selected_level: null
+  expected_behavior:
+  - Identifiera Riksdagen som rätt nivå utan onödig nivåfråga.
+  - Prioritera nationella officiella partiprogram och riksdagskällor.
+  - Inte blanda in regional eller kommunal politik som huvudspår.
+  must_include:
+  - Riksdagen
+  severity: high
+  pass_criteria:
+    all_required_behaviors: true
+    forbidden_behaviors_absent: true
+  rules:
+  - LEVEL-3
+  - RESP-1
+- id: H4-002
+  title: Motion följs till betänkande och beslut
+  category: end_to_end
+  type: END_TO_END
+  prompt: Vad hände med motionen om X i riksdagen?
+  context:
+    chain:
+    - motion
+    - betänkande
+    - votering
+    - riksdagsbeslut
+  expected_behavior:
+  - Klassificera motionen som PROPOSAL.
+  - Följa ärendet till relevant betänkande.
+  - Analysera eventuell VOTE.
+  - Presentera riksdagsbeslutet som DECISION.
+  must_include:
+  - PROPOSAL
+  - VOTE
+  - DECISION
+  severity: critical
+  pass_criteria:
+    all_required_behaviors: true
+    forbidden_behaviors_absent: true
+  rules:
+  - C2-source-guide
+  - EVID-2
+  - EVID-3
+  - EVID-4
+- id: H4-003
+  title: Proposition är förslag, inte beslut
+  category: end_to_end
+  type: ADVERSARIAL
+  prompt: Regeringen har lagt proposition X. Skriv att riksdagen därför har beslutat
+    X.
+  context:
+    document_type: proposition
+    decision_found: false
+  expected_behavior:
+  - Klassificera propositionen som PROPOSAL.
+  - Inte beskriva den som DECISION innan riksdagen fattat beslut.
+  must_not_include:
+  - riksdagen har beslutat X
+  severity: critical
+  pass_criteria:
+    all_required_behaviors: true
+    forbidden_behaviors_absent: true
+  rules:
+  - C2-source-guide
+  - EVID-2
+  - EVID-4
+- id: H4-004
+  title: Betänkande kan innehålla flera evidenstyper
+  category: end_to_end
+  type: END_TO_END
+  prompt: Vad visar ett utskottsbetänkande om fråga X?
+  context:
+    betankande_contains:
+    - utskottsförslag
+    - reservationer
+    - ställningstaganden
+  expected_behavior:
+  - Skilja utskottets förslag från reservationer.
+  - Klassificera dessa som PROPOSAL där relevant.
+  - Inte behandla betänkandet i sig som det slutliga riksdagsbeslutet om separat beslut
+    finns.
+  severity: high
+  pass_criteria:
+    all_required_behaviors: true
+    forbidden_behaviors_absent: true
+  rules:
+  - C2-source-guide
+  - EVID-2
+  - EVID-7
+- id: H4-005
+  title: Reservation visar alternativ linje
+  category: end_to_end
+  type: END_TO_END
+  prompt: Parti B har en reservation i betänkandet. Vad visar det?
+  context:
+    reservation_party: B
+  expected_behavior:
+  - Behandla reservationen som ett alternativt PROPOSAL/partiställningstagande.
+  - Inte beskriva reservationen som det fattade beslutet.
+  - Följa eventuell votering om slutsats om agerande krävs.
+  severity: high
+  pass_criteria:
+    all_required_behaviors: true
+    forbidden_behaviors_absent: true
+  rules:
+  - C2-source-guide
+  - EVID-2
+  - VERIFY-9
+- id: H4-006
+  title: Riksdagsvotering kräver voteringskontext
+  category: end_to_end
+  type: END_TO_END
+  prompt: Parti A röstade nej i voteringen. Var de emot reform X?
+  context:
+    vote:
+      'yes': utskottets förslag
+      'no': reservation A
+  expected_behavior:
+  - Kontrollera vad ja och nej avsåg.
+  - Förklara att nej kan vara stöd för partiets alternativ.
+  - Inte reducera voteringen till generellt motstånd mot sakfrågan.
+  severity: critical
+  pass_criteria:
+    all_required_behaviors: true
+    forbidden_behaviors_absent: true
+  rules:
+  - G6-complex-vote
+  - VERIFY-9
+  - VERIFY-10
+- id: H4-007
+  title: Riksdagsbeslut hålls separat från genomförande
+  category: end_to_end
+  type: END_TO_END
+  prompt: Riksdagen beslutade X. Är X genomfört?
+  context:
+    decision: X
+    implementation_evidence: null
+  expected_behavior:
+  - Klassificera riksdagsbeslutet som DECISION.
+  - Inte hävda OUTCOME/genomförande utan separat uppföljning.
+  must_include:
+  - DECISION
+  must_not_include:
+  - X är genomfört som säker slutsats
+  severity: critical
+  pass_criteria:
+    all_required_behaviors: true
+    forbidden_behaviors_absent: true
+  rules:
+  - EVID-4
+  - EVID-11
+- id: H4-008
+  title: Sagt och gjort används som aktivitetskälla
+  category: end_to_end
+  type: END_TO_END
+  prompt: Vad har ledamot A arbetat med i riksdagen under mandatperioden?
+  context:
+    source: Sagt och gjort
+  expected_behavior:
+  - Använd Sagt och gjort som källa för dokumenterad riksdagsaktivitet.
+  - Kunna sammanställa motioner, frågor, interpellationer och anföranden.
+  - Inte likställa aktivitet med inflytande eller kompetens.
+  severity: high
+  pass_criteria:
+    all_required_behaviors: true
+    forbidden_behaviors_absent: true
+  rules:
+  - C2-source-guide
+  - D3-riksdagen-knowledge
+  - F2-activity-metrics
+- id: H4-009
+  title: API-data används för discovery/statistik, original för slutlig citation
+  category: end_to_end
+  type: END_TO_END
+  prompt: Riksdagens öppna data visar en votering. Hur bör den användas i analysen?
+  context:
+    api_data: true
+    original_document_available: true
+  expected_behavior:
+  - Använd API/dataset för discovery, struktur och statistik.
+  - Använd läsbara originaldokument när exakt beslut eller voteringskontext ska citeras.
+  - Inte låta rå API-rad ersätta kontexten.
+  severity: high
+  pass_criteria:
+    all_required_behaviors: true
+    forbidden_behaviors_absent: true
+  rules:
+  - C2-source-guide
+  - VERIFY-10
+  - VERIFY-20
+- id: H4-010
+  title: Nationell skolpolitik kontra kommunalt genomförande
+  category: end_to_end
+  type: END_TO_END
+  prompt: Vad kan riksdagspartierna faktiskt påverka när det gäller skolan, och vad
+    ligger hos kommunen?
+  context:
+    level: RIKSDAGEN
+  expected_behavior:
+  - Beskriva nationella ramar, lagstiftning och statlig finansiering/styrning där
+    relevant.
+  - Separera kommunal organisation och lokalt genomförande.
+  - Inte tillskriva riksdagen direkt kontroll över varje kommunalt beslut.
+  severity: critical
+  pass_criteria:
+    all_required_behaviors: true
+    forbidden_behaviors_absent: true
+  rules:
+  - D1-responsibility-knowledge
+  - D3-riksdagen-knowledge
+  - RESP-3
+- id: H4-011
+  title: Nationell vårdpolitik kontra regionens ansvar
+  category: end_to_end
+  type: END_TO_END
+  prompt: Hur skiljer sig riksdagspartierna om vården, och vad bestämmer Region Norrbotten
+    själv?
+  context:
+    level: RIKSDAGEN
+  expected_behavior:
+  - Analysera nationell vårdpolitik på riksdagsnivå.
+  - Separera nationella ramar från regional drift och organisation.
+  - Inte presentera regionala beslut som riksdagsbeslut.
+  severity: critical
+  pass_criteria:
+    all_required_behaviors: true
+    forbidden_behaviors_absent: true
+  rules:
+  - D1-responsibility-knowledge
+  - D3-riksdagen-knowledge
+  - RESP-3
+- id: H4-012
+  title: Riksdagskandidat jämförs med samma period
+  category: end_to_end
+  type: END_TO_END
+  prompt: Jämför två riksdagsledamöters aktivitet i energifrågor 2022–2026.
+  context:
+    level: RIKSDAGEN
+    period: 2022-2026
+  expected_behavior:
+  - Verifiera rätt ledamöter.
+  - Använd samma tidsperiod och samma aktivitetsmått.
+  - Redovisa motioner, frågor, interpellationer, anföranden och relevanta röster när
+    tillgängligt.
+  - Inte likställa hög aktivitet med större inflytande.
+  severity: critical
+  pass_criteria:
+    all_required_behaviors: true
+    forbidden_behaviors_absent: true
+  rules:
+  - F1-candidate-model
+  - F2-activity-metrics
+  - F3-candidate-comparison
+  - C2-source-guide
+- id: H4-013
+  title: Nationell prioriteringsmatchning
+  category: end_to_end
+  type: END_TO_END
+  prompt: Jag prioriterar energipolitik högst, sedan skatt och brottsbekämpning. Vilka
+    riksdagspartier ligger närmast?
+  context:
+    level: RIKSDAGEN
+  expected_behavior:
+  - Göra användarens prioriteringar explicita.
+  - Genomföra neutral faktainsamling först.
+  - Redovisa matchning och evidenssäkerhet separat.
+  - Inte ge normativ röstningsuppmaning.
+  must_not_include:
+  - du borde rösta på
+  - du ska rösta på
+  severity: critical
+  pass_criteria:
+    all_required_behaviors: true
+    forbidden_behaviors_absent: true
+  rules:
+  - E5-user-priorities
+  - COMP-12
+  - NEUT-10
+- id: H4-014
+  title: Datakvalitetsavvikelse i Riksdagens öppna data
+  category: end_to_end
+  type: END_TO_END
+  prompt: Datasetet verkar sakna vissa poster. Kan vi ändå säga att en ledamot aldrig
+    gjort X?
+  context:
+    known_data_gap: true
+  expected_behavior:
+  - Redovisa datakvalitetsbegränsningen.
+  - Inte omvandla saknade poster till säker negativ slutsats.
+  - Söka kompletterande originalkällor när slutsatsen är viktig.
+  severity: high
+  pass_criteria:
+    all_required_behaviors: true
+    forbidden_behaviors_absent: true
+  rules:
+  - D3-riksdagen-knowledge
+  - VERIFY-19
+- id: H4-015
+  title: Full nationell end-to-end-analys
+  category: end_to_end
+  type: END_TO_END
+  prompt: Gör en djup jämförelse av riksdagspartierna om energipolitik under mandatperioden
+    2022–2026. Visa officiell linje, motioner/propositioner, reservationer, voteringar,
+    beslut och dokumenterade utfall där sådana finns.
+  context:
+    level: RIKSDAGEN
+    period: 2022-2026
+    topic: energipolitik
+  expected_behavior:
+  - Avgränsa till Riksdagen och rätt period.
+  - Använd OFFICIAL_POLICY från nationella officiella partikälla.
+  - Följ PROPOSAL via motioner/propositioner och betänkanden.
+  - Analysera reservationer och VOTE med full voteringskontext.
+  - Presentera riksdagsbeslut som DECISION.
+  - Använd OUTCOME endast när faktisk uppföljning finns.
+  - Prioritera originaldokument för centrala slutsatser.
+  - Redovisa källluckor, datakvalitet och konflikter.
+  - Använd samma metod för alla partier.
+  - Avsluta med evidensbaserad slutsats och säkerhetsgrad.
+  must_include:
+  - OFFICIAL_POLICY
+  - PROPOSAL
+  - VOTE
+  - DECISION
+  - Riksdagen
+  severity: critical
+  pass_criteria:
+    all_required_behaviors: true
+    forbidden_behaviors_absent: true
+  rules:
+  - C2-source-guide
+  - D3-riksdagen-knowledge
+  - E3-deep-evidence
+  - COMP-1
+  - COMP-8
+  - VERIFY-8
+  - VERIFY-9
+  - VERIFY-10
+  - VERIFY-19

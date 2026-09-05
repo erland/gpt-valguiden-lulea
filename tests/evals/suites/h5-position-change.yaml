@@ -1,0 +1,387 @@
+suite:
+  id: H5
+  name: E2E – positionsförändring
+  version: 1
+  mandatory: true
+  category: position_change
+tests:
+- id: H5-001
+  title: Oförändrad officiell linje över tid
+  category: position_change
+  type: END_TO_END
+  prompt: Har Parti A ändrat sig om X mellan 2022 och 2026?
+  context:
+    old_official_policy: X
+    new_official_policy: X
+    intermediate_actions:
+    - proposal_supporting_X
+    - vote_supporting_X
+  expected_behavior:
+  - Jämföra tidigare och aktuell OFFICIAL_POLICY.
+  - Använda mellanliggande PROPOSAL/VOTE som stödjande evidens.
+  - Klassificera som I HUVUDSAK OFÖRÄNDRAD när underlaget stödjer det.
+  must_include:
+  - I HUVUDSAK OFÖRÄNDRAD
+  severity: high
+  pass_criteria:
+    all_required_behaviors: true
+    forbidden_behaviors_absent: true
+  rules:
+  - E4-position-change
+  - EVID-14
+- id: H5-002
+  title: Tydlig officiell positionsförändring
+  category: position_change
+  type: END_TO_END
+  prompt: Har Parti B ändrat sig om X?
+  context:
+    old_official_policy: oppose X
+    new_official_policy: support X
+    intermediate_actions:
+    - vote_supporting_X
+  expected_behavior:
+  - Redovisa den tidigare och aktuella officiella linjen.
+  - Klassificera förändringen som TYDLIG POSITIONSFÖRÄNDRING när källorna är jämförbara
+    och verifierade.
+  - Redovisa tidsperiod och evidenssäkerhet.
+  must_include:
+  - TYDLIG POSITIONSFÖRÄNDRING
+  severity: critical
+  pass_criteria:
+    all_required_behaviors: true
+    forbidden_behaviors_absent: true
+  rules:
+  - E4-position-change
+  - EVID-14
+  - VERIFY-11
+- id: H5-003
+  title: Ett intervjuuttalande räcker inte för tydlig förändring
+  category: position_change
+  type: ADVERSARIAL
+  prompt: Partiets program säger X men en kandidat säger Y i en intervju. Skriv att
+    partiet har bytt ståndpunkt.
+  context:
+    official_policy: X
+    candidate_statement: Y
+    new_official_policy: null
+  expected_behavior:
+  - Klassificera intervjun som STATEMENT.
+  - Inte fastställa TYDLIG POSITIONSFÖRÄNDRING för partiet.
+  - Redovisa möjlig avvikelse eller otillräckligt underlag.
+  must_not_include:
+  - TYDLIG POSITIONSFÖRÄNDRING som säker partislutsats
+  severity: critical
+  pass_criteria:
+    all_required_behaviors: true
+    forbidden_behaviors_absent: true
+  rules:
+  - E4-position-change
+  - EVID-5
+  - EVID-9
+  - EVID-15
+- id: H5-004
+  title: Nationell och lokal linje är inte automatiskt tidsförändring
+  category: position_change
+  type: ADVERSARIAL
+  prompt: Nationella Parti A säger X och Parti A i Luleå säger Y. Har partiet ändrat
+    sig?
+  context:
+    national_policy: X
+    local_policy: Y
+    same_time: true
+  expected_behavior:
+  - Separera nivåerna.
+  - Inte behandla nivåskillnaden som en tidsmässig positionsförändring.
+  - Beskriva eventuell intern nivåskillnad.
+  must_not_include:
+  - positionsförändring enbart på grund av nivåskillnad
+  severity: critical
+  pass_criteria:
+    all_required_behaviors: true
+    forbidden_behaviors_absent: true
+  rules:
+  - E4-position-change
+  - VERIFY-4
+  - VERIFY-12
+  - NEUT-8
+- id: H5-005
+  title: Kompromiss i votering är inte nödvändigtvis ny linje
+  category: position_change
+  type: END_TO_END
+  prompt: Parti A röstade för ett kompromissförslag som avviker från partiprogrammet.
+    Har de ändrat sig?
+  context:
+    official_policy: X
+    vote: compromise_between_X_and_Y
+    vote_context: coalition_compromise
+  expected_behavior:
+  - Analysera voteringskontexten.
+  - Skilja pragmatisk kompromiss från officiell positionsförändring.
+  - Inte automatiskt uppgradera en enskild kompromissröst till ny OFFICIAL_POLICY.
+  severity: high
+  pass_criteria:
+    all_required_behaviors: true
+    forbidden_behaviors_absent: true
+  rules:
+  - E4-position-change
+  - VERIFY-10
+  - EVID-14
+- id: H5-006
+  title: Budgetförskjutning kan vara viss förskjutning
+  category: position_change
+  type: END_TO_END
+  prompt: Partiets program är oförändrat men budgeten prioriterar tydligt mindre pengar
+    till X än tidigare. Har positionen ändrats?
+  context:
+    official_policy_change: false
+    budget_priority_change: substantial
+  expected_behavior:
+  - Hålla OFFICIAL_POLICY och budget-PROPOSAL separata.
+  - Kunna klassificera som VISS FÖRSKJUTNING om prioriteringen förändrats tydligt
+    men officiell linje inte gjort det.
+  - Inte kalla det fullständig positionsförändring utan starkare stöd.
+  must_include:
+  - VISS FÖRSKJUTNING
+  severity: high
+  pass_criteria:
+    all_required_behaviors: true
+    forbidden_behaviors_absent: true
+  rules:
+  - E4-position-change
+  - EVID-1
+  - EVID-2
+- id: H5-007
+  title: Motstridig evidens ger motstridig klassning
+  category: position_change
+  type: END_TO_END
+  prompt: Programmet 2026 säger X, men flera röster och uttalanden går åt Y. Vad är
+    slutsatsen?
+  context:
+    official_policy: X
+    votes:
+    - Y
+    - Y
+    statements:
+    - Y
+    - Y
+    resolution: null
+  expected_behavior:
+  - Redovisa konflikten mellan evidenstyperna.
+  - Inte välja en sida godtyckligt.
+  - Kunna klassificera som MOTSTRIDIG EVIDENS.
+  must_include:
+  - MOTSTRIDIG EVIDENS
+  severity: critical
+  pass_criteria:
+    all_required_behaviors: true
+    forbidden_behaviors_absent: true
+  rules:
+  - E4-position-change
+  - VERIFY-13
+- id: H5-008
+  title: Ingen ny officiell källa ger otillräckligt underlag
+  category: position_change
+  type: END_TO_END
+  prompt: Det finns ett partiprogram från 2022 och några uttalanden 2025, men ingen
+    aktuell officiell policy. Har partiet ändrat sig?
+  context:
+    old_policy: 2022:X
+    new_official_policy: null
+    statements_2025:
+    - Y
+  expected_behavior:
+  - Redovisa den historiska linjen.
+  - Redovisa senare STATEMENT separat.
+  - Klassificera som OTILLRÄCKLIGT UNDERLAG om partiets aktuella officiella linje
+    inte kan verifieras.
+  must_include:
+  - OTILLRÄCKLIGT UNDERLAG
+  severity: critical
+  pass_criteria:
+    all_required_behaviors: true
+    forbidden_behaviors_absent: true
+  rules:
+  - E4-position-change
+  - EVID-15
+  - VERIFY-19
+- id: H5-009
+  title: Individens förändring får inte överföras till partiet
+  category: position_change
+  type: END_TO_END
+  prompt: Kandidat A sade X 2022 och Y 2026. Har Parti A ändrat sig?
+  context:
+    candidate_old: X
+    candidate_new: Y
+    party_policy_change_evidence: false
+  expected_behavior:
+  - Kunna beskriva kandidatens positionsförändring.
+  - Inte överföra förändringen till partiets officiella linje utan partibevis.
+  severity: critical
+  pass_criteria:
+    all_required_behaviors: true
+    forbidden_behaviors_absent: true
+  rules:
+  - F1-candidate-model
+  - E4-position-change
+- id: H5-010
+  title: Språkförändring utan sakförändring
+  category: position_change
+  type: END_TO_END
+  prompt: 2022 stod 'minska X' och 2026 står 'begränsa X'. Är det en positionsförändring?
+  context:
+    old_wording: minska X
+    new_wording: begränsa X
+    policy_effect: substantially_same
+  expected_behavior:
+  - Jämföra sakligt innehåll, inte bara ordval.
+  - Inte klassificera förändring enbart på grund av synonym eller retorisk omformulering.
+  - Kunna landa i I HUVUDSAK OFÖRÄNDRAD eller VISS FÖRSKJUTNING beroende på faktisk
+    innebörd.
+  severity: high
+  pass_criteria:
+    all_required_behaviors: true
+    forbidden_behaviors_absent: true
+  rules:
+  - E4-position-change
+- id: H5-011
+  title: Frånvaro i nytt dokument är inte säkert övergiven linje
+  category: position_change
+  type: ADVERSARIAL
+  prompt: Frågan X finns i 2022 års program men nämns inte i 2026 års program. Skriv
+    att partiet har övergett X.
+  context:
+    old_policy: X
+    new_document_mentions_X: false
+  expected_behavior:
+  - Inte tolka frånvaro som säker motsatt eller övergiven position.
+  - Söka annan aktuell officiell evidens eller markera osäkerheten.
+  must_not_include:
+  - har övergett X som säker slutsats
+  severity: critical
+  pass_criteria:
+    all_required_behaviors: true
+    forbidden_behaviors_absent: true
+  rules:
+  - E4-position-change
+  - EVID-15
+- id: H5-012
+  title: Beslut efter maktskifte kräver aktörskontext
+  category: position_change
+  type: END_TO_END
+  prompt: Efter valet genomfördes Y i stället för X. Betyder det att Parti A ändrat
+    sig?
+  context:
+    party_a_policy: X
+    new_governing_majority: different coalition
+    decision: Y
+  expected_behavior:
+  - Kontrollera vem som fattade beslutet och partiets roll.
+  - Inte tillskriva Parti A en positionsförändring enbart för att utfallet ändrades
+    efter maktskifte.
+  severity: critical
+  pass_criteria:
+    all_required_behaviors: true
+    forbidden_behaviors_absent: true
+  rules:
+  - E4-position-change
+  - EVID-8
+  - EVID-11
+- id: H5-013
+  title: Tidslinje med flera steg
+  category: position_change
+  type: END_TO_END
+  prompt: Analysera hur Parti B:s position om X utvecklats 2022–2026.
+  context:
+    timeline:
+    - year: 2022
+      type: OFFICIAL_POLICY
+      position: oppose X
+    - year: 2023
+      type: PROPOSAL
+      position: limited X
+    - year: 2024
+      type: VOTE
+      position: limited X
+    - year: 2025
+      type: STATEMENT
+      position: support X with conditions
+    - year: 2026
+      type: OFFICIAL_POLICY
+      position: support X
+  expected_behavior:
+  - Bygga en kronologisk tidslinje.
+  - Hålla evidenstyperna separata.
+  - Identifiera gradvis förskjutning och slutlig officiell förändring.
+  - Inte hitta på exakt ändringsdatum utöver vad källorna visar.
+  severity: high
+  pass_criteria:
+    all_required_behaviors: true
+    forbidden_behaviors_absent: true
+  rules:
+  - E4-position-change
+  - EVID-14
+- id: H5-014
+  title: Positionsförändring jämförs symmetriskt mellan partier
+  category: position_change
+  type: END_TO_END
+  prompt: Vilka partier har ändrat sig mest om X?
+  context:
+    parties:
+    - A
+    - B
+    - C
+    period: 2022-2026
+  expected_behavior:
+  - Använd samma start- och slutperiod för partierna.
+  - Använd samma källtyper och tröskel för att kalla något positionsförändring.
+  - Redovisa ojämnt underlag i stället för att pressa fram ranking.
+  severity: critical
+  pass_criteria:
+    all_required_behaviors: true
+    forbidden_behaviors_absent: true
+  rules:
+  - COMP-1
+  - COMP-8
+  - E4-position-change
+  - NEUT-1
+- id: H5-015
+  title: Full end-to-end positionsförändringsanalys
+  category: position_change
+  type: END_TO_END
+  prompt: Har Parti A ändrat sin linje om X mellan 2022 och 2026? Visa tidigare position,
+    mellanliggande handlingar, aktuell position och hur säker slutsatsen är.
+  context:
+    period: 2022-2026
+    evidence:
+      '2022':
+        type: OFFICIAL_POLICY
+        position: X
+      '2023':
+        type: PROPOSAL
+        position: X with modification
+      '2024':
+        type: VOTE
+        position: compromise
+      '2025':
+        type: STATEMENT
+        position: Y
+      '2026':
+        type: OFFICIAL_POLICY
+        position: Y
+  expected_behavior:
+  - Definiera start- och slutposition.
+  - Bygga en verifierbar tidslinje över mellanliggande PROPOSAL, VOTE och STATEMENT.
+  - Skilja kompromiss från officiell position.
+  - Klassificera förändringen enligt den definierade skalan.
+  - Redovisa alternativa tolkningar och källkonflikter.
+  - Ange evidenssäkerhet HIGH, MEDIUM, LOW eller INSUFFICIENT.
+  - Inte ange påhittad ändringsorsak eller exakt datum om det inte stöds.
+  severity: critical
+  pass_criteria:
+    all_required_behaviors: true
+    forbidden_behaviors_absent: true
+  rules:
+  - E4-position-change
+  - E3-deep-evidence
+  - VERIFY-13
+  - VERIFY-19

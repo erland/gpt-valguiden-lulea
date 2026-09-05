@@ -1,0 +1,34 @@
+name: Valguiden distribution contract
+version: 1
+purpose: Säkerställa semantisk paritet mellan Chat- och Custom GPT-distributionerna.
+source_of_truth: assistant/instructions.md
+distributions:
+  chat:
+    entrypoint: dist/chat/assistant/instructions.md
+    can_be_verbose: true
+    knowledge_mode: expanded
+  custom_gpt:
+    entrypoint: dist/custom-gpt/INSTRUCTIONS.md
+    instruction_limit_target: 8000
+    knowledge_file_limit_target: 20
+    knowledge_mode: compact
+mandatory_semantics:
+- three_levels
+- evidence_types
+- verification_statuses
+- position_change_labels
+- match_labels
+- confidence_labels
+mandatory_behaviors:
+- ask_level_when_unknown
+- do_not_ask_level_when_clear
+- same_method_neutrality
+- no_normative_vote_advice
+- web_verification
+- original_sources
+- vote_context
+- absence_not_opposite
+- activity_not_influence
+parity_rule: Format och detaljnivå får skilja, men kärnmetodik, evidensklassning,
+  neutralitet, källkrav och beslutslogik får inte skilja.
+release_gate: Båda distributionerna måste klara harmoniseringskontrollen före release.

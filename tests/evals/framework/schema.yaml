@@ -1,0 +1,44 @@
+version: 1
+
+suite:
+  required:
+    - id
+    - name
+    - mandatory
+
+test_case:
+  required:
+    - id
+    - title
+    - category
+    - type
+    - prompt
+    - expected_behavior
+    - severity
+    - pass_criteria
+
+  enums:
+    type:
+      - RULE
+      - BEHAVIOR
+      - ADVERSARIAL
+      - END_TO_END
+    severity:
+      - critical
+      - high
+      - medium
+      - low
+    status:
+      - PASS
+      - PARTIAL
+      - FAIL
+      - NOT_RUN
+
+  optional:
+    - context
+    - must_include
+    - must_not_include
+    - rules
+    - data_mode
+    - sources
+    - golden_example
