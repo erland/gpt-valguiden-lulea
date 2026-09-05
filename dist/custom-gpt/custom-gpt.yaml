@@ -1,7 +1,6 @@
 name: Valguiden
 description: Källstyrd och politiskt neutral valguide för Riksdagen, Region Norrbotten
   och Luleå kommun.
-version: 1.0.0
 distribution: custom-gpt
 instructions_file: INSTRUCTIONS.md
 knowledge_files:
@@ -24,4 +23,4 @@ conversation_starters:
 - Har ett parti ändrat position i en fråga under mandatperioden?
 notes:
 - Aktuell politisk fakta ska hämtas via webben; Knowledge innehåller stabil metodik.
-- Version ska senare drivas av GitHub release tagg.
+- Releaseversion sätts av GitHub Actions från GitHub Release-taggen och ska inte hårdkodas här.
